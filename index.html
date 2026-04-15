@@ -78,17 +78,14 @@
           <div class="form-group">
             <label data-i18n="label_origin">Origen</label>
             <div class="airport-selector" id="selectorFrom">
-              <button type="button" class="airport-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="airport-trigger-text" data-i18n="airport_placeholder">Seleccionar…</span>
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="tagsFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
-              </button>
+              </div>
               <div class="airport-dropdown" role="listbox">
-                <div class="dropdown-search-wrap">
-                  <input type="text" class="dropdown-search-input" placeholder="Filtrar aeropuerto…" data-i18n-placeholder="airport_filter_ph" autocomplete="off" spellcheck="false" />
-                </div>
                 <div class="dropdown-list"></div>
               </div>
-              <div class="tags" id="tagsFrom"></div>
             </div>
           </div>
 
@@ -96,17 +93,14 @@
           <div class="form-group">
             <label data-i18n="label_dest">Destino</label>
             <div class="airport-selector" id="selectorTo">
-              <button type="button" class="airport-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="airport-trigger-text" data-i18n="airport_placeholder">Seleccionar…</span>
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="tagsTo"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
-              </button>
+              </div>
               <div class="airport-dropdown" role="listbox">
-                <div class="dropdown-search-wrap">
-                  <input type="text" class="dropdown-search-input" placeholder="Filtrar aeropuerto…" data-i18n-placeholder="airport_filter_ph" autocomplete="off" spellcheck="false" />
-                </div>
                 <div class="dropdown-list"></div>
               </div>
-              <div class="tags" id="tagsTo"></div>
             </div>
           </div>
         </div>

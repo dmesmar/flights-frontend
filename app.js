@@ -90,12 +90,12 @@ document.getElementById('dayBtnsRow')?.addEventListener('click', (e) => {
    AIRPORT SELECTOR FACTORY
 ═══════════════════════════════════════════ */
 function createAirportSelector(selectorEl, tagsEl) {
-  const trigger     = selectorEl.querySelector('.airport-trigger');
-  const triggerText = selectorEl.querySelector('.airport-trigger-text');
-  const dropdown    = selectorEl.querySelector('.airport-dropdown');
-  const searchInput = selectorEl.querySelector('.dropdown-search-input');
-  const list        = selectorEl.querySelector('.dropdown-list');
-  const selected    = new Set();
+  const trigger        = selectorEl.querySelector('.airport-trigger');
+  const dropdown       = selectorEl.querySelector('.airport-dropdown');
+  const searchInput    = selectorEl.querySelector('.dropdown-search-input');
+  const list           = selectorEl.querySelector('.dropdown-list');
+  const internalTagsEl = selectorEl.querySelector('.airport-trigger-tokens');
+  const selected       = new Set();
   let getAllowedFn  = null;
   let onChangeCb   = null;
 
@@ -110,6 +110,7 @@ function createAirportSelector(selectorEl, tagsEl) {
   function closeDropdown() {
     dropdown.classList.remove('open');
     trigger.setAttribute('aria-expanded', 'false');
+    searchInput.value = '';
   }
 
   function addCountry(airports) {
@@ -237,21 +238,11 @@ function createAirportSelector(selectorEl, tagsEl) {
   }
 
   function updateTriggerText() {
-    if (selected.size === 0) {
-      triggerText.textContent = t('trigger_ph');
-      triggerText.classList.remove('has-selection');
-    } else if (selected.size <= 3) {
-      triggerText.textContent = [...selected].join(', ');
-      triggerText.classList.add('has-selection');
-    } else {
-      const first = [...selected].slice(0, 2).join(', ');
-      triggerText.textContent = `${first} ${t('trigger_more', selected.size - 2)}`;
-      triggerText.classList.add('has-selection');
-    }
+    searchInput.placeholder = selected.size === 0 ? t('trigger_ph') : '';
   }
 
   function renderTags() {
-    tagsEl.innerHTML = '';
+    internalTagsEl.innerHTML = '';
     selected.forEach(iata => {
       const info = airportInfo(iata);
       const tag = document.createElement('div');
@@ -259,18 +250,18 @@ function createAirportSelector(selectorEl, tagsEl) {
       tag.title = `${info.city} — ${info.countryName}`;
       tag.innerHTML = `${iata}<button type="button" aria-label="${t('tag_remove_aria', iata)}">&times;</button>`;
       tag.querySelector('button').addEventListener('click', () => removeAirport(iata));
-      tagsEl.appendChild(tag);
+      internalTagsEl.appendChild(tag);
     });
   }
 
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+    if (e.target.closest('.tag button')) return;
+    openDropdown();
   });
 
-  trigger.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dropdown.classList.contains('open') ? closeDropdown() : openDropdown(); }
-    if (e.key === 'Escape') closeDropdown();
+  searchInput.addEventListener('focus', () => {
+    if (!dropdown.classList.contains('open')) openDropdown();
   });
 
   searchInput.addEventListener('input', () => renderList(searchInput.value));

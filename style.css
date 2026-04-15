@@ -183,40 +183,56 @@ select:focus {
 }
 
 /* ── Airport selector ── */
-.airport-selector { position: relative; }
+.airport-selector { position: relative; flex: 1; display: flex; flex-direction: column; }
 
 .airport-trigger {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 0.35rem;
   width: 100%;
+  flex: 1;
+  min-height: 2.6rem;
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
-  padding: 0.6rem 0.75rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  text-align: left;
+  padding: 0.35rem 2.2rem 0.35rem 0.6rem;
+  cursor: text;
   transition: border-color 0.2s;
-  gap: 0.5rem;
+  position: relative;
 }
 .airport-trigger:hover { border-color: var(--accent); }
 .airport-trigger[aria-expanded="true"] { border-color: var(--accent); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 
-.airport-trigger-text {
+.airport-trigger-tokens { display: contents; }
+
+.airport-trigger .dropdown-search-input {
   flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--text-muted);
+  min-width: 80px;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  padding: 0.1rem 0;
+  cursor: text;
 }
-.airport-trigger-text.has-selection { color: var(--text); font-weight: 600; }
 
 .airport-trigger-arrow {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-muted);
   font-size: 0.8rem;
-  flex-shrink: 0;
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+.airport-trigger[aria-expanded="true"] .airport-trigger-arrow {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .airport-dropdown {
@@ -419,6 +435,11 @@ select:focus {
   transition: opacity 0.15s;
 }
 .tag button:hover { opacity: 1; }
+
+.airport-trigger .tag {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+}
 
 /* ── Stops ── */
 .stops-row {
