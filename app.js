@@ -286,6 +286,12 @@ function createAirportSelector(selectorEl, tagsEl) {
 
   return {
     getSelected:     () => [...selected],
+    setSelected:     (iataArray) => {
+      selected.clear();
+      iataArray.forEach(iata => { if (AIRPORTS.find(a => a.iata === iata)) selected.add(iata); });
+      renderTags();
+      updateTriggerText();
+    },
     refresh:         () => renderList(searchInput.value),
     setGetAllowed:   (fn) => { getAllowedFn = fn; },
     setOnChange:     (fn) => { onChangeCb = fn; },

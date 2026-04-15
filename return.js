@@ -63,8 +63,6 @@ function showTripSummary(outbound, returnFlight) {
 
 function openReturnModal(flight) {
   document.getElementById('returnModal')?.remove();
-  const oriInfo = airportInfo(flight.origen);
-  const dstInfo = airportInfo(flight.destino);
   const modal = document.createElement('div');
   modal.id = 'returnModal';
   modal.className = 'return-modal-overlay';
@@ -72,8 +70,35 @@ function openReturnModal(flight) {
     <div class="return-modal" role="dialog" aria-modal="true">
       <button type="button" class="return-modal-close" id="returnModalClose">&times;</button>
       <h3 class="return-modal-title">${t('rm_title')}</h3>
-      <p class="return-modal-route">${dstInfo.city} <strong>(${flight.destino})</strong> &rarr; ${oriInfo.city} <strong>(${flight.origen})</strong></p>
       <p class="return-modal-base">${t('rm_selected')} ${flightDateLabel(flight.fecha)} &nbsp;&bull;&nbsp; ${flight.salida} &rarr; ${flight.llegada} &nbsp;&bull;&nbsp; ${flight.aerolinea}</p>
+      <div class="return-modal-airports">
+        <div class="rm-airport-field">
+          <label>${t('rm_from')}</label>
+          <div class="airport-selector" id="rmSelectorFrom">
+            <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+              <div class="airport-trigger-tokens" id="rmTagsFrom"></div>
+              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" />
+              <span class="airport-trigger-arrow">&#x25BE;</span>
+            </div>
+            <div class="airport-dropdown" role="listbox">
+              <div class="dropdown-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="rm-airport-field">
+          <label>${t('rm_to')}</label>
+          <div class="airport-selector" id="rmSelectorTo">
+            <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+              <div class="airport-trigger-tokens" id="rmTagsTo"></div>
+              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" />
+              <span class="airport-trigger-arrow">&#x25BE;</span>
+            </div>
+            <div class="airport-dropdown" role="listbox">
+              <div class="dropdown-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="return-modal-fields">
         <div class="return-modal-field">
           <label for="rmMinDays">${t('rm_min_days')}</label>
@@ -87,6 +112,12 @@ function openReturnModal(flight) {
       <button type="button" class="return-modal-search" id="returnModalSearch">${t('rm_search')}</button>
     </div>`;
   document.body.appendChild(modal);
+
+  const rmFrom = createAirportSelector(document.getElementById('rmSelectorFrom'));
+  rmFrom.setSelected([flight.destino]);
+  const rmTo = createAirportSelector(document.getElementById('rmSelectorTo'));
+  rmTo.setSelected([flight.origen]);
+
   document.getElementById('returnModalClose').addEventListener('click', () => modal.remove());
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   document.getElementById('rmMinDays').addEventListener('change', () => {
@@ -95,14 +126,20 @@ function openReturnModal(flight) {
     if (parseInt(maxEl.value) < min) maxEl.value = min;
   });
   document.getElementById('returnModalSearch').addEventListener('click', async () => {
+    const fromAirports = rmFrom.getSelected();
+    const toAirports   = rmTo.getSelected();
+    if (fromAirports.length === 0 || toAirports.length === 0) {
+      alert(t('rm_no_airports'));
+      return;
+    }
     const minDays = Math.max(0, parseInt(document.getElementById('rmMinDays').value) || 0);
     const maxDays = Math.max(minDays, parseInt(document.getElementById('rmMaxDays').value) || minDays);
     modal.remove();
-    await searchReturn(flight, minDays, maxDays);
+    await searchReturn(flight, minDays, maxDays, fromAirports, toAirports);
   });
 }
 
-async function searchReturn(flight, minDays, maxDays) {
+async function searchReturn(flight, minDays, maxDays, fromAirports, toAirports) {
   const base    = parseDateYMD(flight.fecha);
   const iniDate = new Date(base); iniDate.setDate(base.getDate() + minDays);
   const finDate = new Date(base); finDate.setDate(base.getDate() + maxDays);
@@ -112,8 +149,8 @@ async function searchReturn(flight, minDays, maxDays) {
   const payload = {
     fecha_ini:    toApiDate(iniDate),
     fecha_fin:    toApiDate(finDate),
-    airport_from: [flight.destino],
-    airport_to:   [flight.origen],
+    airport_from: fromAirports,
+    airport_to:   toAirports,
     max_stops:    parseInt(document.getElementById('maxStops')?.value ?? 1),
   };
 
@@ -124,15 +161,15 @@ async function searchReturn(flight, minDays, maxDays) {
   returnSection.id = 'returnSection';
   resultsEl.appendChild(returnSection);
 
-  const oriInfo = airportInfo(flight.origen);
-  const dstInfo = airportInfo(flight.destino);
+  const fromLabel = fromAirports.length === 1 ? airportInfo(fromAirports[0]).city : fromAirports.join(', ');
+  const toLabel   = toAirports.length   === 1 ? airportInfo(toAirports[0]).city   : toAirports.join(', ');
   const stayLabel = minDays === maxDays
     ? t('stay_days', minDays)
     : t('stay_range', minDays, maxDays);
 
   returnSection.innerHTML = `
     <div class="return-section-header">
-      <span class="return-section-title">${t('rs_title', dstInfo.city, oriInfo.city)}</span>
+      <span class="return-section-title">${t('rs_title', fromLabel, toLabel)}</span>
       <span class="return-section-sub">${t('rs_sub', flightDateLabel(flight.fecha), stayLabel)}</span>
       <button type="button" class="return-section-close" id="returnSectionClose">${t('rs_close')}</button>
     </div>
@@ -175,7 +212,7 @@ async function searchReturn(flight, minDays, maxDays) {
       </div>`;
     returnSection.innerHTML = `
       <div class="return-section-header">
-        <span class="return-section-title">${t('rs_title', dstInfo.city, oriInfo.city)}</span>
+        <span class="return-section-title">${t('rs_title', fromLabel, toLabel)}</span>
         <span class="return-section-sub">${t('rs_sub', flightDateLabel(flight.fecha), stayLabel)}</span>
         <button type="button" class="return-section-close" id="returnSectionClose">${t('rs_close')}</button>
       </div>

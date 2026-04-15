@@ -1320,7 +1320,7 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 2rem;
-  max-width: 460px;
+  max-width: 520px;
   width: 100%;
   position: relative;
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
@@ -1398,6 +1398,32 @@ select:focus {
   transition: opacity 0.15s;
 }
 .return-modal-search:hover { opacity: 0.88; }
+
+/* ── Airport selectors inside return modal ── */
+.return-modal-airports {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+.rm-airport-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.rm-airport-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.return-modal .dropdown-list {
+  max-height: 180px;
+}
+.return-modal .airport-selector {
+  position: relative;
+}
 
 /* ── Return results section ── */
 .return-section-header {
