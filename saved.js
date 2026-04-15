@@ -54,6 +54,7 @@ function updateSavedCount() {
 }
 
 function renderSavedTab() {
+  if (typeof renderSavedExpressRoutes === 'function') renderSavedExpressRoutes();
   renderSavedSearches();
   const list = loadSaved();
   const container = document.getElementById('savedFlights');

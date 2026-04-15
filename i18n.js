@@ -53,7 +53,7 @@ const I18N = {
     alert_dest:    'Añade al menos un aeropuerto de destino.',
 
     /* ── Spinner ── */
-    spinner_msg:       'Buscando vuelos.',
+    spinner_msg:       'Buscando vuelos',
     spinner_init:      'Iniciando búsqueda\u2026',
     spinner_no_close:  'No cierres esta pestaña.',
     spinner_remaining: s => `\u223c ${s} s restantes`,
@@ -130,6 +130,28 @@ const I18N = {
     refresh_not_found:  '? No disponible',
     refresh_price_was:  prev => `antes: ${prev}`,
 
+    /* ── Express trip ── */
+    tab_express_text:       'Exprés',
+    express_title:          'Viaje Exprés',
+    express_subtitle:       'Ida por la mañana (04:00–11:59) · Vuelta por la tarde/noche del mismo día',
+    btn_express_search:     '⚡ Buscar viaje exprés',
+    express_searching_out:  'Buscando vuelos de ida…',
+    express_searching_ret:  'Buscando vuelos de vuelta…',
+    express_no_trips:       'No hay viajes exprés disponibles para las fechas y rutas seleccionadas.',
+    express_trips_found:    (n, s) => `${n} viaje${n !== 1 ? 's' : ''} exprés encontrado${n !== 1 ? 's' : ''} <span class="results-elapsed">(${s} s)</span>`,
+    express_total:          'Total:',
+    express_leg_out:        'Ida (mañana)',
+    express_leg_ret:        'Vuelta (tarde/noche)',
+    express_opts:           n => `${n} opción${n !== 1 ? 'es' : ''}`,
+    express_filter_max_total:   'Precio total máx.',
+    express_filter_dest_out: 'Destino ida',
+    express_filter_dest_ret: 'Destino vuelta',
+    express_sort_total_asc:     'Total ↑',
+    express_sort_total_desc:    'Total ↓',
+    saved_express_title:        '⚡ Rutas Exprés Guardadas',
+    btn_import_express:         '📂 Importar exprés',
+    ex_ss_trips_count:          (n, date) => `${n} viaje${n !== 1 ? 's' : ''} · ${date}`,
+
     /* ── Logs ── */
     log_level_label:  'Nivel',
     log_opt_0:        '0 \u2014 Silencio',
@@ -167,6 +189,7 @@ const I18N = {
     stay_range:      (a, b) => `${a}\u2013${b} días`,
     conn_error:      'No se pudo conectar con el backend.',
     conn_error_full: url => `No se pudo conectar con el backend.<br><small>Asegúrate de que el servidor está corriendo en <code>${url}</code></small>`,
+    import_invalid:  'El archivo no es un JSON de exprés válido.',
 
     /* ── Date/time ── */
     weekdays: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
@@ -330,6 +353,28 @@ const I18N = {
     refresh_not_found:  '? Not available',
     refresh_price_was:  prev => `was: ${prev}`,
 
+    /* ── Express trip ── */
+    tab_express_text:       'Express',
+    express_title:          'Express Trip',
+    express_subtitle:       'Morning outbound (04:00–11:59) · Same-day return afternoon/evening',
+    btn_express_search:     '⚡ Search express trip',
+    express_searching_out:  'Searching outbound flights…',
+    express_searching_ret:  'Searching return flights…',
+    express_no_trips:       'No express trips available for the selected dates and routes.',
+    express_trips_found:    (n, s) => `${n} express trip${n !== 1 ? 's' : ''} found <span class="results-elapsed">(${s} s)</span>`,
+    express_total:          'Total:',
+    express_leg_out:        'Outbound (morning)',
+    express_leg_ret:        'Return (afternoon/evening)',
+    express_opts:           n => `${n} option${n !== 1 ? 's' : ''}`,
+    express_filter_max_total:   'Max total price',
+    express_filter_dest_out: 'Outbound destination',
+    express_filter_dest_ret: 'Return destination',
+    express_sort_total_asc:     'Total ↑',
+    express_sort_total_desc:    'Total ↓',
+    saved_express_title:        '⚡ Saved Express Routes',
+    btn_import_express:         '📂 Import express',
+    ex_ss_trips_count:          (n, date) => `${n} trip${n !== 1 ? 's' : ''} · ${date}`,
+
     /* ── Logs ── */
     log_level_label:  'Level',
     log_opt_0:        '0 \u2014 Silent',
@@ -367,6 +412,7 @@ const I18N = {
     stay_range:      (a, b) => `${a}\u2013${b} days`,
     conn_error:      'Could not connect to the backend.',
     conn_error_full: url => `Could not connect to the backend.<br><small>Make sure the server is running at <code>${url}</code></small>`,
+    import_invalid:  'The file is not a valid express JSON.',
 
     /* ── Date/time ── */
     weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -422,6 +468,12 @@ function applyI18n() {
     el.textContent = t(el.dataset.i18n);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    // Don't overwrite placeholder on airport search inputs that already have selections
+    // (they deliberately set placeholder='' via updateTriggerText)
+    if (el.classList.contains('dropdown-search-input')) {
+      const tokens = el.closest('.airport-trigger')?.querySelector('.airport-trigger-tokens');
+      if (tokens && tokens.children.length > 0) return;
+    }
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
   document.querySelectorAll('[data-i18n-aria]').forEach(el => {

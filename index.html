@@ -35,6 +35,7 @@
     <div class="tabs-bar">
       <button class="tab-btn active" data-tab="search">&#x2708;&#xFE0F; <span data-i18n="tab_search_text">Búsqueda</span></button>
       <button class="tab-btn" data-tab="saved">&#x2665;&#xFE0F; <span data-i18n="tab_saved_text">Guardados</span> <span class="saved-count" id="savedCount"></span></button>
+      <button class="tab-btn" data-tab="express">&#x26A1; <span data-i18n="tab_express_text">Exprés</span></button>
       <button class="tab-btn" data-tab="logs" id="tabLogs" style="display:none">&#x1F4CB; <span data-i18n="tab_logs_text">Logs</span></button>
     </div>
 
@@ -136,9 +137,107 @@
 
     <!-- Saved tab -->
     <div class="tab-panel hidden" id="tab-saved">
+      <div id="savedExpressRoutes"></div>
       <div id="savedSearches"></div>
       <div id="savedFlights"></div>
     </div><!-- /tab-saved -->
+
+    <!-- Express tab -->
+    <div class="tab-panel hidden" id="tab-express">
+    <div class="search-card">
+      <h2 data-i18n="express_title">Viaje Exprés</h2>
+      <p class="express-subtitle" data-i18n="express_subtitle">Ida por la mañana (antes de las 12:00) · Vuelta por la tarde/noche del mismo día</p>
+
+      <form id="expressForm" novalidate>
+
+        <!-- Dates -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="exFechaIni" data-i18n="label_date_from">Fecha inicio</label>
+            <input type="date" id="exFechaIni" required />
+          </div>
+          <div class="form-group">
+            <label for="exFechaFin" data-i18n="label_date_to">Fecha fin</label>
+            <input type="date" id="exFechaFin" required />
+          </div>
+        </div>
+
+        <!-- Day of week filter -->
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label><span data-i18n="label_days">Días de la semana</span> <span class="form-hint" data-i18n="label_days_hint">sin marcar = todos los días</span></label>
+            <div class="day-btns-row" id="exDayBtnsRow">
+              <button type="button" class="day-btn" data-day="1" data-i18n-day="1">Lun</button>
+              <button type="button" class="day-btn" data-day="2" data-i18n-day="2">Mar</button>
+              <button type="button" class="day-btn" data-day="3" data-i18n-day="3">Mié</button>
+              <button type="button" class="day-btn" data-day="4" data-i18n-day="4">Jue</button>
+              <button type="button" class="day-btn" data-day="5" data-i18n-day="5">Vie</button>
+              <button type="button" class="day-btn" data-day="6" data-i18n-day="6">Sáb</button>
+              <button type="button" class="day-btn" data-day="0" data-i18n-day="0">Dom</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Origin airports -->
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="label_origin">Origen</label>
+            <div class="airport-selector" id="exSelectorFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="exTagsFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destination airports -->
+          <div class="form-group">
+            <label data-i18n="label_dest">Destino</label>
+            <div class="airport-selector" id="exSelectorTo">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="exTagsTo"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Max stops -->
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label data-i18n="label_max_stops">Máximo de escalas</label>
+          <div class="stops-row" id="exStopsRow">
+            <button type="button" class="stop-btn active" data-value="0" data-i18n="stops_0">Sin escalas</button>
+            <button type="button" class="stop-btn" data-value="1" data-i18n="stops_1">1 escala</button>
+            <button type="button" class="stop-btn" data-value="2" data-i18n="stops_2">2 escalas</button>
+            <button type="button" class="stop-btn" data-value="3" data-i18n="stops_3">3 escalas</button>
+          </div>
+          <input type="hidden" id="exMaxStops" value="0" />
+        </div>
+
+        <button type="submit" class="btn-search" id="exSubmitBtn" data-i18n="btn_express_search">⚡ Buscar viaje exprés</button>
+        <div class="import-row">
+          <input type="file" id="exImportFileInput" accept=".json" hidden />
+          <button type="button" class="btn-import" id="exBtnImport" data-i18n="btn_import_express">📂 Importar exprés</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Express Results -->
+    <div id="expressResults">
+      <div class="results-placeholder">
+        <span class="placeholder-icon">&#x26A1;</span>
+        <span data-i18n="results_placeholder">Los resultados aparecerán aquí</span>
+      </div>
+    </div>
+    </div><!-- /tab-express -->
 
     <!-- Logs tab -->
     <div class="tab-panel hidden" id="tab-logs">
@@ -178,5 +277,6 @@
   <script src="filters.js"></script>
   <script src="return.js"></script>
   <script src="app.js"></script>
+  <script src="express.js"></script>
 </body>
 </html>

@@ -564,7 +564,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     const elapsedMs = Date.now() - searchStart;
 
     // Capture selected days and pre-filter display data
-    activeDayFilter = [...document.querySelectorAll('.day-btn.active')].map(b => parseInt(b.dataset.day));
+    activeDayFilter = [...document.querySelectorAll('#dayBtnsRow .day-btn.active')].map(b => parseInt(b.dataset.day));
     const displayData = activeDayFilter.length
       ? { ...data, vuelos: filterByDays(data.vuelos), total_vuelos: filterByDays(data.vuelos).length }
       : data;
