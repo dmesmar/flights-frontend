@@ -118,9 +118,12 @@ function renderSavedTab() {
             </div>
           </div>
           <div class="card-footer">
-            <span class="card-price">${v.precio}</span>
+            <div class="card-price-block">
+              <span class="card-price">${v.precio}</span>
+            </div>
             <div class="card-footer-right">
-            <button class="save-btn save-btn-active" data-id="${id}" title="${t('save_title_saved')}">♥</button>
+              <button class="refresh-btn" data-id="${id}" title="${t('refresh_btn_title')}">↻</button>
+              <button class="save-btn save-btn-active" data-id="${id}" title="${t('save_title_saved')}">♥</button>
             </div>
           </div>
         </div>`;
@@ -135,6 +138,95 @@ function renderSavedTab() {
     const v  = list.find(s => flightId(s) === id);
     if (v) btn.addEventListener('click', () => toggleSave(v));
   });
+
+  container.querySelectorAll('.refresh-btn').forEach(btn => {
+    const id = btn.dataset.id;
+    const v  = list.find(s => flightId(s) === id);
+    if (v) btn.addEventListener('click', () => refreshSavedFlight(v, btn));
+  });
+}
+
+async function refreshSavedFlight(v, btn) {
+  btn.disabled = true;
+  btn.classList.add('refresh-loading');
+
+  const payload = {
+    fecha_ini:    v.fecha,
+    fecha_fin:    v.fecha,
+    airport_from: [v.origen],
+    airport_to:   [v.destino],
+    max_stops:    Math.max(typeof v.escalas === 'number' ? v.escalas : 0, 3),
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/search`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    let data = await res.json();
+
+    const id = flightId(v);
+    let found = (data.vuelos || []).find(r => flightId(r) === id);
+
+    // Retry once if not found — backend may still be scraping on first hit
+    if (!found) {
+      const res2 = await fetch(`${API_BASE}/api/search`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      if (res2.ok) {
+        data  = await res2.json();
+        found = (data.vuelos || []).find(r => flightId(r) === id);
+      }
+    }
+
+    const card    = btn.closest('.flight-card');
+    const priceEl = card.querySelector('.card-price');
+
+    let deltaEl = card.querySelector('.price-delta');
+    if (!deltaEl) {
+      deltaEl = document.createElement('span');
+      deltaEl.className = 'price-delta';
+      priceEl.insertAdjacentElement('afterend', deltaEl);
+    }
+
+    if (found) {
+      const oldP = parsePrice(v.precio);
+      const newP = parsePrice(found.precio);
+      if (newP < oldP) {
+        deltaEl.className  = 'price-delta delta-down';
+        deltaEl.textContent = `↓ ${found.precio} (${t('refresh_price_was', v.precio)})`;
+        // Update price shown in card and in localStorage
+        priceEl.textContent = found.precio;
+        const list  = loadSaved();
+        const entry = list.find(s => flightId(s) === id);
+        if (entry) { entry.precio = found.precio; persistSaved(list); }
+      } else if (newP > oldP) {
+        deltaEl.className  = 'price-delta delta-up';
+        deltaEl.textContent = `↑ ${found.precio} (${t('refresh_price_was', v.precio)})`;
+        priceEl.textContent = found.precio;
+        const list  = loadSaved();
+        const entry = list.find(s => flightId(s) === id);
+        if (entry) { entry.precio = found.precio; persistSaved(list); }
+      } else {
+        deltaEl.className  = 'price-delta delta-same';
+        deltaEl.textContent = t('refresh_no_change');
+      }
+    } else {
+      deltaEl.className  = 'price-delta delta-notfound';
+      deltaEl.textContent = t('refresh_not_found');
+    }
+  } catch {
+    btn.textContent = '⚠';
+    setTimeout(() => { btn.textContent = '↻'; btn.disabled = false; btn.classList.remove('refresh-loading'); }, 2000);
+    return;
+  }
+
+  btn.classList.remove('refresh-loading');
+  btn.disabled = false;
 }
 
 // Init count on load

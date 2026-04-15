@@ -124,6 +124,12 @@ const I18N = {
     ss_load_title:         'Haz clic para cargar',
     ss_flights_count:      (n, date) => `${n} vuelo${n !== 1 ? 's' : ''} · ${date}`,
 
+    /* ── Refresh saved flight ── */
+    refresh_btn_title:  'Actualizar precio desde el backend',
+    refresh_no_change:  '= Sin cambios',
+    refresh_not_found:  '? No disponible',
+    refresh_price_was:  prev => `antes: ${prev}`,
+
     /* ── Logs ── */
     log_level_label:  'Nivel',
     log_opt_0:        '0 \u2014 Silencio',
@@ -317,6 +323,12 @@ const I18N = {
     ss_del:                '✕',
     ss_load_title:         'Click to load',
     ss_flights_count:      (n, date) => `${n} flight${n !== 1 ? 's' : ''} · ${date}`,
+
+    /* ── Refresh saved flight ── */
+    refresh_btn_title:  'Refresh price from backend',
+    refresh_no_change:  '= No change',
+    refresh_not_found:  '? Not available',
+    refresh_price_was:  prev => `was: ${prev}`,
 
     /* ── Logs ── */
     log_level_label:  'Level',
