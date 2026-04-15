@@ -2,6 +2,8 @@
    FILTERS, SORTING & ROUTE TABS
 ------------------------------------------- */
 let activeDayFilter = [];
+let activeDepDayFilter = [];
+let activeArrDayFilter = [];
 
 document.getElementById('dayBtnsRow')?.addEventListener('click', (e) => {
   const btn = e.target.closest('.day-btn');
@@ -164,6 +166,11 @@ function applyFiltersAndSort() {
     if (stopsVal === '2' && v.escalas < 2)   return false;
     if (activeDestFilter && v.destino !== activeDestFilter) return false;
     if (activeDayFilter.length > 0 && !activeDayFilter.includes(parseDateYMD(v.fecha).getDay())) return false;
+    if (activeDepDayFilter.length > 0 && !activeDepDayFilter.includes(parseDateYMD(v.fecha).getDay())) return false;
+    if (activeArrDayFilter.length > 0) {
+      const arrDate = new Date(parseDateYMD(v.fecha).getTime() + (parseInt(v.adelanto_llegada) || 0) * 86400000);
+      if (!activeArrDayFilter.includes(arrDate.getDay())) return false;
+    }
     const depHour = parseInt((v.salida  || '0:0').split(':')[0]);
     const arrHour = parseInt((v.llegada || '0:0').split(':')[0]);
     if (depHour < depFrom || depHour > depTo) return false;
@@ -245,9 +252,27 @@ function bindFilterBarEvents() {
     });
   });
 
+  document.getElementById('fDepDays')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-day-btn');
+    if (!btn) return;
+    btn.classList.toggle('active');
+    activeDepDayFilter = [...document.querySelectorAll('#fDepDays .filter-day-btn.active')].map(b => parseInt(b.dataset.day));
+    applyFiltersAndSort();
+  });
+
+  document.getElementById('fArrDays')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-day-btn');
+    if (!btn) return;
+    btn.classList.toggle('active');
+    activeArrDayFilter = [...document.querySelectorAll('#fArrDays .filter-day-btn.active')].map(b => parseInt(b.dataset.day));
+    applyFiltersAndSort();
+  });
+
   document.getElementById('filterResetBtn')?.addEventListener('click', () => {
     if (!lastResults) return;
     activeDestFilter = '';
+    activeDepDayFilter = [];
+    activeArrDayFilter = [];
     excludedRoutes.clear();
     activeRoute = '__flat__';
     const resultsEl = document.getElementById('results');

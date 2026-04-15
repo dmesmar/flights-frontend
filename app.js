@@ -77,14 +77,6 @@ stopsRow.addEventListener('click', (e) => {
   selectorTo.refresh();
 });
 
-/* ═══════════════════════════════════════════
-   DAY-OF-WEEK FILTER  (state lives in filters.js)
-═══════════════════════════════════════════ */
-document.getElementById('dayBtnsRow')?.addEventListener('click', (e) => {
-  const btn = e.target.closest('.day-btn');
-  if (!btn) return;
-  btn.classList.toggle('active');
-});
 
 /* ── Country display helper ── */
 function countryLabel(code) {

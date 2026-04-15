@@ -754,6 +754,36 @@ select:focus {
   align-items: start;
 }
 
+.filter-row-days {
+  align-items: start;
+  margin-top: 0.75rem;
+}
+
+.filter-day-btns {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.filter-day-btn {
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-day-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-day-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;

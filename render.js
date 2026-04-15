@@ -231,6 +231,20 @@ function buildFilterBar(data) {
             </div>
           </div>
         </div>
+        <div class="filter-row filter-row-days">
+          <div class="filter-group filter-group-wide">
+            <label class="filter-label">${t('filter_dep_days')}</label>
+            <div class="filter-day-btns" id="fDepDays">
+              ${[1,2,3,4,5,6,0].map(d => `<button type="button" class="filter-day-btn" data-day="${d}">${t('weekdays')[d]}</button>`).join('')}
+            </div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label class="filter-label">${t('filter_arr_days')}</label>
+            <div class="filter-day-btns" id="fArrDays">
+              ${[1,2,3,4,5,6,0].map(d => `<button type="button" class="filter-day-btn" data-day="${d}">${t('weekdays')[d]}</button>`).join('')}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="filter-section">
