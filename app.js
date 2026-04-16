@@ -337,7 +337,7 @@ selectorTo.setGetAllowed(a => {
 selectorFrom.setOnChange(() => selectorTo.refresh());
 selectorTo.setOnChange(() => selectorFrom.refresh());
 
-const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+const API_BASE = (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:8000'
   : 'https://flights-backend-t10m.onrender.com';
 
@@ -490,7 +490,7 @@ async function fetchLogs() {
 ───────────────────────────────────────── */
 async function ensureBackendAwake(statusEl) {
   // Only bother on production (not localhost)
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+  if (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
 
   let wakeupShown = false;
   const wakeupTimer = setTimeout(() => {
