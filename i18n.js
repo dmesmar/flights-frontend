@@ -58,6 +58,7 @@ const I18N = {
     spinner_msg:       'Buscando vuelos',
     spinner_init:      'Iniciando búsqueda\u2026',
     spinner_no_close:  'No cierres esta pestaña.',
+    wakeup_msg:        '⏳ Arrancando el servidor… esto puede tardar hasta 30 segundos.',,
     spinner_remaining: s => `\u223c ${s} s restantes`,
 
     /* ── Results ── */
@@ -289,6 +290,7 @@ const I18N = {
     spinner_msg:       'Searching flights.',
     spinner_init:      'Starting search\u2026',
     spinner_no_close:  "Don't close this tab.",
+    wakeup_msg:        '⏳ Waking up the server… this may take up to 30 seconds.',
     spinner_remaining: s => `\u223c ${s} s remaining`,
 
     /* ── Results ── */

@@ -158,6 +158,8 @@ async function refreshSavedFlight(v, btn) {
   btn.disabled = true;
   btn.classList.add('refresh-loading');
 
+  await ensureBackendAwake({ set textContent(msg) { btn.title = msg; } });
+
   const payload = {
     fecha:        v.fecha,
     origen:       v.origen,

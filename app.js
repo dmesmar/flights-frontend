@@ -337,7 +337,9 @@ selectorTo.setGetAllowed(a => {
 selectorFrom.setOnChange(() => selectorTo.refresh());
 selectorTo.setOnChange(() => selectorFrom.refresh());
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000'
+  : 'https://flights-backend-t10m.onrender.com';
 
 /* ═══════════════════════════════════════════
    TABS
@@ -478,6 +480,37 @@ async function fetchLogs() {
   }
 }
 
+/* ─────────────────────────────────────────
+   BACKEND WAKEUP (Render free-tier cold start)
+   Pings /api/ping; if it takes >1 s shows a
+   warning message in `statusEl` (a DOM element
+   whose textContent can be updated).
+   Returns once the backend is up (or after
+   a 35 s timeout).
+───────────────────────────────────────── */
+async function ensureBackendAwake(statusEl) {
+  // Only bother on production (not localhost)
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+
+  let wakeupShown = false;
+  const wakeupTimer = setTimeout(() => {
+    wakeupShown = true;
+    if (statusEl) statusEl.textContent = t('wakeup_msg');
+  }, 1000);
+
+  try {
+    await Promise.race([
+      fetch(`${API_BASE}/api/ping`).then(r => { if (!r.ok) throw new Error(); }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 35000)),
+    ]);
+  } catch {
+    // If ping fails we let the real request fail naturally
+  } finally {
+    clearTimeout(wakeupTimer);
+    if (wakeupShown && statusEl) statusEl.textContent = t('spinner_init');
+  }
+}
+
 document.getElementById('searchForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -517,6 +550,8 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
   resultsEl.innerHTML  = renderSpinner(rutasEstimadas);
   submitBtn.disabled   = true;
   submitBtn.textContent = t('btn_searching');
+
+  await ensureBackendAwake(document.getElementById('progressStatus'));
 
   // Elapsed time timer
   const searchStart = Date.now();

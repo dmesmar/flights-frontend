@@ -184,6 +184,8 @@ async function searchReturn(flight, minDays, maxDays, fromAirports, toAirports) 
   requestAnimationFrame(() => returnSection.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   document.getElementById('returnSectionClose')?.addEventListener('click', () => returnSection.remove());
 
+  await ensureBackendAwake(returnSection.querySelector('#progressStatus'));
+
   // Poll /api/progress while return search runs
   const returnProgressInterval = setInterval(async () => {
     try {

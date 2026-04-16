@@ -98,6 +98,8 @@ document.getElementById('expressForm').addEventListener('submit', async (e) => {
 
   resultsEl.innerHTML = renderSpinner([...from.flatMap(f => to.map(t2 => `${f} → ${t2}`))]);
 
+  await ensureBackendAwake(document.getElementById('progressStatus'));
+
   // Timer display
   const timerInterval = setInterval(() => {
     const el = document.getElementById('spinnerTimer');
