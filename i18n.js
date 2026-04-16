@@ -37,6 +37,8 @@ const I18N = {
     btn_search:                '🔍 Buscar vuelos',
     btn_searching:             'Buscando\u2026',
     btn_import:                '📂 Importar resultados',
+    advanced_toggle:           '⚙ Ajustes avanzados',
+    label_max_results:         'Máximo de vuelos por ruta',
     results_placeholder:       'Los resultados aparecerán aquí',
 
     /* ── Airport selector (dynamic) ── */
@@ -260,6 +262,8 @@ const I18N = {
     btn_search:                '🔍 Search flights',
     btn_searching:             'Searching\u2026',
     btn_import:                '📂 Import results',
+    advanced_toggle:           '⚙ Advanced settings',
+    label_max_results:         'Max flights per route',
     results_placeholder:       'Results will appear here',
 
     /* ── Airport selector (dynamic) ── */

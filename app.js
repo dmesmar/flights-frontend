@@ -506,6 +506,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     airport_from: from,
     airport_to:   to,
     max_stops:    parseInt(stops),
+    max_results:  parseInt(document.getElementById('maxResults')?.value || '3'),
   };
 
   const resultsEl  = document.getElementById('results');

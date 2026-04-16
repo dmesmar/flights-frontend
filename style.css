@@ -552,6 +552,58 @@ select:focus {
   letter-spacing: 0;
 }
 
+/* ── Advanced settings ── */
+.advanced-settings {
+  margin-bottom: 1.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.advanced-settings summary {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.advanced-settings summary::-webkit-details-marker { display: none; }
+.advanced-settings summary:hover { color: var(--accent); }
+.advanced-body {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.advanced-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.advanced-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.advanced-input {
+  width: 90px;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-input, var(--bg-card));
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-btn);
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: center;
+}
+.advanced-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 /* ── Search button ── */
 .btn-search {
   width: 100%;
