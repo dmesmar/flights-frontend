@@ -38,9 +38,11 @@ const devModeToggle = document.getElementById('devModeToggle');
 const devModeLabel  = document.getElementById('devModeLabel');
 const tabLogs       = document.getElementById('tabLogs');
 
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || !location.hostname;
+
 function applyDevMode(active) {
   localStorage.setItem('devMode', active ? '1' : '0');
-  tabLogs.style.display = active ? '' : 'none';
+  tabLogs.style.display = (active && IS_LOCAL) ? '' : 'none';
   devModeToggle.classList.toggle('dev-mode-active', active);
   devModeLabel.textContent = t(active ? 'devMode_label_active' : 'devMode_label');
   // If logs tab is active but dev mode turned off, switch to search
@@ -337,7 +339,7 @@ selectorTo.setGetAllowed(a => {
 selectorFrom.setOnChange(() => selectorTo.refresh());
 selectorTo.setOnChange(() => selectorFrom.refresh());
 
-const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+const API_BASE = IS_LOCAL
   ? 'http://localhost:8000'
   : 'https://welcome-airedale-commonly.ngrok-free.app';
 
@@ -347,7 +349,7 @@ function apiFetch(url, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
-if (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+if (IS_LOCAL) {
   document.getElementById('devModeToggle').style.display = '';
 }
 
@@ -500,7 +502,7 @@ async function fetchLogs() {
 ───────────────────────────────────────── */
 async function ensureBackendAwake(statusEl) {
   // Only bother on production (not localhost)
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+  if (IS_LOCAL) return;
 
   let wakeupShown = false;
   const wakeupTimer = setTimeout(() => {
