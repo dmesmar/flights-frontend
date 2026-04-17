@@ -339,7 +339,11 @@ selectorTo.setOnChange(() => selectorFrom.refresh());
 
 const API_BASE = (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:8000'
-  : 'https://flights-backend-t10m.onrender.com';
+  : 'https://welcome-airedale-commonly.ngrok-free.app';
+
+if (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+  document.getElementById('devModeToggle').style.display = '';
+}
 
 /* ═══════════════════════════════════════════
    TABS
@@ -490,7 +494,7 @@ async function fetchLogs() {
 ───────────────────────────────────────── */
 async function ensureBackendAwake(statusEl) {
   // Only bother on production (not localhost)
-  if (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
 
   let wakeupShown = false;
   const wakeupTimer = setTimeout(() => {
