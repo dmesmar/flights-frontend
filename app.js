@@ -662,6 +662,57 @@ onLangChange(() => {
   selectorFrom.refresh();
   selectorTo.refresh();
 
+  // Search results — rebuild with new language, preserving filter state
+  if (lastResults) {
+    const resultsEl = document.getElementById('results');
+    if (resultsEl?.querySelector('.results-header')) {
+      // Capture current filter DOM values before wiping innerHTML
+      const fs = {
+        dateFrom: document.getElementById('fDateFrom')?.value,
+        dateTo:   document.getElementById('fDateTo')?.value,
+        price:    document.getElementById('fPrice')?.value,
+        sort:     document.getElementById('fSort')?.value,
+        airline:  document.getElementById('fAirline')?.value,
+        depFrom:  document.getElementById('fDepFrom')?.value,
+        depTo:    document.getElementById('fDepTo')?.value,
+        arrFrom:  document.getElementById('fArrFrom')?.value,
+        arrTo:    document.getElementById('fArrTo')?.value,
+        stopsVal: document.querySelector('.filter-stop-btn.active')?.dataset.val ?? '',
+        depDays:  [...document.querySelectorAll('#fDepDays .filter-day-btn.active')].map(b => b.dataset.day),
+        arrDays:  [...document.querySelectorAll('#fArrDays .filter-day-btn.active')].map(b => b.dataset.day),
+      };
+
+      resultsEl.innerHTML = buildResultsHeader(lastResults)
+        + buildFilterBar(lastResults)
+        + '<div id="resultsGrid">' + renderResultsGridInner(lastResults, '', activeRoute === '__flat__', excludedRoutes) + '</div>';
+
+      bindFilterBarEvents();
+      bindResultsHeaderBtns(lastResults);
+      const rg = document.getElementById('resultsGrid');
+      bindSaveBtns(rg, lastResults.vuelos);
+      bindReturnBtns(rg, lastResults.vuelos);
+      bindRouteTabs(rg, applyFiltersAndSort);
+
+      // Restore filter input values
+      const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+      set('fDateFrom', fs.dateFrom); set('fDateTo', fs.dateTo);
+      set('fPrice', fs.price);       set('fSort', fs.sort);
+      set('fAirline', fs.airline);
+      set('fDepFrom', fs.depFrom);   set('fDepTo', fs.depTo);
+      set('fArrFrom', fs.arrFrom);   set('fArrTo', fs.arrTo);
+
+      // Restore active pill/day-button states
+      document.querySelectorAll('.filter-stop-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.val === fs.stopsVal));
+      document.querySelectorAll('#fDepDays .filter-day-btn').forEach(b =>
+        b.classList.toggle('active', fs.depDays.includes(b.dataset.day)));
+      document.querySelectorAll('#fArrDays .filter-day-btn').forEach(b =>
+        b.classList.toggle('active', fs.arrDays.includes(b.dataset.day)));
+
+      applyFiltersAndSort();
+    }
+  }
+
   // Saved tab
   if (!document.getElementById('tab-saved').classList.contains('hidden')) {
     renderSavedTab();
