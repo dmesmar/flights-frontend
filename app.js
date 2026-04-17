@@ -634,7 +634,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     document.getElementById('returnSection')?.remove();
 
   } catch (err) {
-    resultsEl.innerHTML = renderError(t('conn_error_full', API_BASE));
+    resultsEl.innerHTML = renderError(t('conn_error_full'));
   } finally {
     clearInterval(progressInterval);
     clearInterval(timerInterval);

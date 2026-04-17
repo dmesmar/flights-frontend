@@ -255,7 +255,7 @@ document.getElementById('expressForm').addEventListener('submit', async (e) => {
     bindExpressResultsHeaderBtns(vuelosOut, vuelosRet, elapsedS);
 
   } catch {
-    resultsEl.innerHTML = renderError(t('conn_error_full', API_BASE));
+    resultsEl.innerHTML = renderError(t('conn_error_full'));
   } finally {
     clearInterval(progressInterval);
     clearInterval(timerInterval);

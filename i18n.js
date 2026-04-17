@@ -197,7 +197,7 @@ const I18N = {
     stay_days:       n => `${n} día${n !== 1 ? 's' : ''}`,
     stay_range:      (a, b) => `${a}\u2013${b} días`,
     conn_error:      'No se pudo conectar con el backend.',
-    conn_error_full: url => `No se pudo conectar con el backend.<br><small>Asegúrate de que el servidor está corriendo en <code>${url}</code></small>`,
+    conn_error_full: 'No se pudo conectar con el servidor. Inténtalo de nuevo en unos segundos.',
     import_invalid:  'El archivo no es un JSON de exprés válido.',
 
     /* ── Date/time ── */
@@ -429,7 +429,7 @@ const I18N = {
     stay_days:       n => `${n} day${n !== 1 ? 's' : ''}`,
     stay_range:      (a, b) => `${a}\u2013${b} days`,
     conn_error:      'Could not connect to the backend.',
-    conn_error_full: url => `Could not connect to the backend.<br><small>Make sure the server is running at <code>${url}</code></small>`,
+    conn_error_full: 'Could not connect to the server. Please try again in a few seconds.',
     import_invalid:  'The file is not a valid express JSON.',
 
     /* ── Date/time ── */
