@@ -682,6 +682,9 @@ onLangChange(() => {
         arrDays:  [...document.querySelectorAll('#fArrDays .filter-day-btn.active')].map(b => b.dataset.day),
       };
 
+      // Preserve return section if visible
+      const returnSection = document.getElementById('returnSection');
+
       resultsEl.innerHTML = buildResultsHeader(lastResults)
         + buildFilterBar(lastResults)
         + '<div id="resultsGrid">' + renderResultsGridInner(lastResults, '', activeRoute === '__flat__', excludedRoutes) + '</div>';
@@ -692,6 +695,9 @@ onLangChange(() => {
       bindSaveBtns(rg, lastResults.vuelos);
       bindReturnBtns(rg, lastResults.vuelos);
       bindRouteTabs(rg, applyFiltersAndSort);
+
+      // Re-append return section if it was present
+      if (returnSection) resultsEl.appendChild(returnSection);
 
       // Restore filter input values
       const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
