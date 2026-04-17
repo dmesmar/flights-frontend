@@ -545,7 +545,9 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     return;
   }
 
+  const searchId = crypto.randomUUID();
   const payload = {
+    search_id:    searchId,
     fecha_ini:    fechaIni.split('-').reverse().join('-'),
     fecha_fin:    fechaFin.split('-').reverse().join('-'),
     airport_from: from,
@@ -575,7 +577,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
   // Poll /api/progress while search runs
   const progressInterval = setInterval(async () => {
     try {
-      const r = await apiFetch(`${API_BASE}/api/progress`);
+      const r = await apiFetch(`${API_BASE}/api/progress?search_id=${searchId}`);
       if (!r.ok) return;
       const { percent, message } = await r.json();
       const fill   = document.getElementById('progressFill');

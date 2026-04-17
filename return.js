@@ -146,7 +146,9 @@ async function searchReturn(flight, minDays, maxDays, fromAirports, toAirports) 
   const toApiDate = d =>
     `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
 
+  const searchId = crypto.randomUUID();
   const payload = {
+    search_id:    searchId,
     fecha_ini:    toApiDate(iniDate),
     fecha_fin:    toApiDate(finDate),
     airport_from: fromAirports,
@@ -189,7 +191,7 @@ async function searchReturn(flight, minDays, maxDays, fromAirports, toAirports) 
   // Poll /api/progress while return search runs
   const returnProgressInterval = setInterval(async () => {
     try {
-      const r = await apiFetch(`${API_BASE}/api/progress`);
+      const r = await apiFetch(`${API_BASE}/api/progress?search_id=${searchId}`);
       if (!r.ok) return;
       const { percent, message } = await r.json();
       const fill   = returnSection.querySelector('#progressFill');

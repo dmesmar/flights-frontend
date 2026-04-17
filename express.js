@@ -83,7 +83,10 @@ document.getElementById('expressForm').addEventListener('submit', async (e) => {
 
   const maxResultsEx = parseInt(document.getElementById('exMaxResults')?.value || '3') || 3;
 
+  const searchIdOut = crypto.randomUUID();
+  const searchIdRet = crypto.randomUUID();
   const payloadOut = {
+    search_id:    searchIdOut,
     fecha_ini:    fechaIniBack,
     fecha_fin:    fechaFinBack,
     airport_from: from,
@@ -92,6 +95,7 @@ document.getElementById('expressForm').addEventListener('submit', async (e) => {
     max_results:  maxResultsEx,
   };
   const payloadRet = {
+    search_id:    searchIdRet,
     fecha_ini:    fechaIniBack,
     fecha_fin:    fechaFinBack,
     airport_from: to,
@@ -114,7 +118,7 @@ document.getElementById('expressForm').addEventListener('submit', async (e) => {
   let searchPhase = 0; // 0 = outbound, 1 = return
   const progressInterval = setInterval(async () => {
     try {
-      const r = await apiFetch(`${API_BASE}/api/progress`);
+      const r = await apiFetch(`${API_BASE}/api/progress?search_id=${searchPhase === 0 ? searchIdOut : searchIdRet}`);
       if (!r.ok) return;
       const { percent, message } = await r.json();
       const fill   = document.getElementById('progressFill');
