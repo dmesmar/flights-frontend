@@ -634,7 +634,13 @@ function createAirportSelector(selectorEl, tagsEl) {
   // triggers focusout with relatedTarget=null and closes the dropdown.
   dropdown.addEventListener('mousedown', (e) => {
     e.stopPropagation();
-    if (!e.target.matches('input, button, textarea, select, [tabindex="0"]')) {
+    // Sólo permitir que el foco se mueva a inputs de texto dentro del dropdown
+    // (p.ej. el buscador de aeropuertos del mapa). Para botones, paths SVG y
+    // cualquier otra cosa se previene el comportamiento por defecto del mousedown
+    // para que el input del trigger no pierda el foco — esto evita que en móvil
+    // al tocar un botón de continente se dispare focusout con relatedTarget=null
+    // y se cierre el dropdown.
+    if (!e.target.matches('input[type="text"], input:not([type]), textarea')) {
       e.preventDefault();
     }
   });
