@@ -1243,6 +1243,19 @@ select:focus {
 .filter-stops-row {
   display: flex;
   gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* Fila de destino dentro del filtro */
+.filter-dest-row {
+  margin-top: 0.5rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+.filter-dest-row .filter-label {
+  margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .filter-group-pills {
@@ -2568,4 +2581,148 @@ select:focus {
   .theme-toggle {
     padding: 0.28rem 0.45rem;
   }
+}
+
+/* ── Tarjetas de vuelo: layout horizontal en móvil ── */
+@media (max-width: 600px) {
+  .flights-grid {
+    gap: 0.6rem;
+  }
+
+  /* La tarjeta pasa a grid de 2 columnas:
+     fila 1 → card-top (ancho completo)
+     fila 2 → card-body (izq.) | card-footer (dcha.) */
+  .flight-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+  }
+
+  .card-top {
+    grid-column: 1 / -1;
+    padding: 0.42rem 0.85rem;
+  }
+
+  .card-body {
+    grid-column: 1;
+    padding: 0.6rem 0.75rem;
+    align-self: center;
+  }
+
+  .card-footer {
+    grid-column: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-top: none;
+    border-left: 1px solid var(--border);
+    padding: 0.55rem 0.85rem;
+    margin-top: 0;
+    gap: 0.4rem;
+    min-width: 88px;
+  }
+
+  .card-price {
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  .card-footer-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.3rem;
+  }
+
+  /* Botones de la tarjeta más compactos */
+  .return-btn,
+  .save-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.22rem 0.4rem;
+    font-size: 0.74rem;
+  }
+
+  /* Timeline algo más compacto */
+  .endpoint-time {
+    font-size: 1.1rem;
+  }
+
+  .card-flight-line {
+    width: 44px;
+  }
+
+  /* Hover: desactivar lift en táctil */
+  .flight-card:hover {
+    transform: none;
+  }
+}
+
+/* ── Filter bar: reorganizar en móvil ── */
+@media (max-width: 600px) {
+  /* Fila pills: STOPS arriba (full-width), despues AIRLINE + SORT en dos columnas iguales */
+  .filter-row-pills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  .filter-group-pills {
+    grid-column: 1 / -1; /* STOPS siempre fila completa */
+  }
+  .filter-row-pills .filter-group:not(.filter-group-pills) {
+    min-width: 0; /* que no desborden */
+  }
+  .filter-row-pills .filter-select {
+    width: 100%; /* AIRLINE y SORT mismo ancho */
+  }
+
+  /* Fila de destino: label encima + select debajo (igual que los otros grupos) */
+  .filter-dest-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+  }
+  .filter-dest-row .filter-label {
+    white-space: normal;
+  }
+  .filter-dest-select {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* ── Scroll-to-top button ── */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(232,112,58,0.45);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.22s, transform 0.22s, background 0.15s, box-shadow 0.15s;
+}
+.scroll-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.scroll-top-btn:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 6px 22px rgba(232,112,58,0.55);
+  transform: translateY(-2px);
+}
+.scroll-top-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(232,112,58,0.3);
 }

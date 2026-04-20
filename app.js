@@ -12,6 +12,15 @@ const themeIcon   = document.getElementById('themeIcon');
 const themeLabel  = document.getElementById('themeLabel');
 const html        = document.documentElement;
 
+/* ── Scroll-to-top button ── */
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
+}, { passive: true });
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
 function applyTheme(theme) {
   html.setAttribute('data-theme', theme);
   if (theme === 'dark') {

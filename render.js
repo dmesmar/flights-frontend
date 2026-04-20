@@ -283,8 +283,8 @@ function buildFilterBar(data) {
           </div>
         </div>
         ${dests.length > 1 ? `
-        <div class="filter-row" style="margin-top:0.5rem;align-items:center;gap:0.6rem">
-          <label class="filter-label" style="margin:0;white-space:nowrap">${t('filter_dest_label')}</label>
+        <div class="filter-row filter-dest-row">
+          <label class="filter-label">${t('filter_dest_label')}</label>
           <select id="fDest" class="filter-dest-select">
             <option value="">${t('filter_all_m')}</option>
             ${dests.map(d => `<option value="${d.iata}"${activeDestFilter===d.iata?' selected':''}>${d.iata} – ${d.city}</option>`).join('')}
