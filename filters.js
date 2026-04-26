@@ -291,7 +291,10 @@ function bindSaveBtns(container, vuelos) {
   container.querySelectorAll('.save-btn').forEach(btn => {
     const id = btn.dataset.id;
     const v  = vuelos.find(f => flightId(f) === id);
-    if (v) btn.addEventListener('click', () => toggleSave(v));
+    if (v) btn.addEventListener('click', () => {
+      toggleSave(v);
+      applyFiltersAndSort();
+    });
   });
 }
 
