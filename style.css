@@ -450,6 +450,21 @@ select:focus {
 
 .country-header-name { flex: 1; }
 
+.country-header-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.country-header-toggle:hover { color: var(--accent); }
+
+.country-airport-count {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.country-airports-container .airport-option {
+  padding-left: 1.4rem;
+}
+
 .country-header-btns {
   display: flex;
   gap: 0.3rem;
@@ -2853,6 +2868,8 @@ select:focus {
 .simple-search-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
   margin-bottom: 0.75rem;
 }
 .simple-search-label {
@@ -2874,6 +2891,54 @@ select:focus {
   color: var(--text);
 }
 
+/* ── Tooltip icon ── */
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--text-muted, #888);
+  color: var(--surface, #fff);
+  font-size: 0.6rem;
+  font-weight: 700;
+  cursor: help;
+  flex-shrink: 0;
+  position: relative;
+}
+.tooltip-icon:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-2, #222);
+  color: var(--text, #eee);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  white-space: normal;
+  width: 220px;
+  line-height: 1.4;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.tooltip-icon:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+  z-index: 9999;
+  pointer-events: none;
+}
+
 /* ── Simple search mobile warning ── */
 .simple-search-warning {
   font-size: 0.78rem;
@@ -2889,4 +2954,32 @@ select:focus {
   color: #fcd34d;
   background: #451a03;
   border-color: #92400e;
+}
+
+/* ── Resizable map splitter ── */
+.map-splitter {
+  width: 5px;
+  background: var(--border);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  position: relative;
+  z-index: 1;
+}
+.map-splitter:hover,
+.map-splitter.dragging {
+  background: var(--accent);
+}
+.map-splitter::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1px;
+  height: 24px;
+  background: currentColor;
+  opacity: 0.4;
+  border-radius: 1px;
+  box-shadow: -2px 0 0 currentColor, 2px 0 0 currentColor;
 }

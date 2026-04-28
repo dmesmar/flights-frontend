@@ -518,6 +518,54 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
   }
 
   mapBody.appendChild(mapPanel);
+
+  // ── Resizable splitter ────────────────────────────────────
+  const splitter = document.createElement('div');
+  splitter.className = 'map-splitter';
+  splitter.setAttribute('aria-hidden', 'true');
+
+  (function initSplitter() {
+    let dragging = false;
+    let startX = 0;
+    let startMapW = 0;
+    let startAirW = 0;
+
+    splitter.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      dragging = true;
+      startX = e.clientX;
+      startMapW = mapPanel.getBoundingClientRect().width;
+      startAirW = airportsPanel.getBoundingClientRect().width;
+      splitter.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const totalW = startMapW + startAirW;
+      const minPct = 0.25;
+      const maxPct = 0.80;
+      let newMapW = Math.max(totalW * minPct, Math.min(totalW * maxPct, startMapW + dx));
+      let newAirW = totalW - newMapW;
+      mapPanel.style.flex = 'none';
+      mapPanel.style.width = newMapW + 'px';
+      airportsPanel.style.flex = 'none';
+      airportsPanel.style.width = newAirW + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      splitter.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    });
+  })();
+  // ──────────────────────────────────────────────────────────
+
+  mapBody.appendChild(splitter);
   mapBody.appendChild(airportsPanel);
 
   // Wrapper: continent bar on top, two-panel map body below
@@ -572,7 +620,7 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
 
   function renderCountryAirports(code, query) {
     const q = query.trim().toLowerCase();
-    let airports = AIRPORTS.filter(a => a.country === code);
+    let airports = AIRPORTS.filter(a => a.country === code && (getAllowedFn ? getAllowedFn(a) : true));
     if (q) airports = airports.filter(a =>
       a.iata.toLowerCase().includes(q) ||
       a.city.toLowerCase().includes(q) ||
@@ -593,7 +641,7 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
       [...doc.querySelectorAll('[data-country]')].map(p => p.getAttribute('data-country'))
     );
     const q = query.trim().toLowerCase();
-    let airports = AIRPORTS.filter(a => continentCountries.has(a.country));
+    let airports = AIRPORTS.filter(a => continentCountries.has(a.country) && (getAllowedFn ? getAllowedFn(a) : true));
     if (q) airports = airports.filter(a =>
       a.iata.toLowerCase().includes(q) ||
       a.city.toLowerCase().includes(q) ||
@@ -698,23 +746,43 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
       return;
     }
     if (!q && isSimple()) {
-      // Simple mode with no query: show all airports grouped by country
+      // Simple mode with no query: show country headers only, expand airports on click (lazy)
       list.style.display = '';
       mapWrapper.style.display = 'none';
       list.innerHTML = '';
       const byCountry = {};
       AIRPORTS.forEach(a => {
+        if (getAllowedFn && !getAllowedFn(a)) return;
         if (!byCountry[a.country]) byCountry[a.country] = { name: countryLabel(a.country), airports: [] };
         byCountry[a.country].airports.push(a);
       });
       for (const group of Object.values(byCountry)) {
         const header = document.createElement('div');
-        header.className = 'dropdown-country-header';
-        header.innerHTML = `<span class="country-header-name">${group.name}</span>
+        header.className = 'dropdown-country-header dropdown-country-collapsed';
+        header.innerHTML = `<span class="country-header-name country-header-toggle">▶ ${group.name} <span class="country-airport-count">(${group.airports.length})</span></span>
           <div class="country-header-btns">
             <button type="button" class="country-select-all">${t('select_all')}</button>
             <button type="button" class="country-deselect-all">${t('deselect_all')}</button>
           </div>`;
+        // Lazy airport container
+        const airportContainer = document.createElement('div');
+        airportContainer.className = 'country-airports-container';
+        airportContainer.style.display = 'none';
+        let rendered = false;
+        const toggleExpand = () => {
+          const collapsed = header.classList.toggle('dropdown-country-collapsed');
+          airportContainer.style.display = collapsed ? 'none' : '';
+          const toggleEl = header.querySelector('.country-header-toggle');
+          if (toggleEl) toggleEl.textContent = (collapsed ? '▶ ' : '▼ ') + group.name + ` (${group.airports.length})`;
+          if (!collapsed && !rendered) {
+            rendered = true;
+            group.airports.forEach(a => renderAirportOption(a, airportContainer));
+          }
+        };
+        header.querySelector('.country-header-toggle').addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          toggleExpand();
+        });
         header.querySelector('.country-select-all').addEventListener('mousedown', (e) => {
           e.preventDefault();
           group.airports.forEach(a => { const ok = getAllowedFn ? getAllowedFn(a) : true; if (ok) selected.add(a.iata); });
@@ -730,7 +798,7 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
           renderTags(); updateTriggerText(); renderSearchList(searchInput.value); onChangeCb?.();
         });
         list.appendChild(header);
-        group.airports.forEach(a => renderAirportOption(a, list));
+        list.appendChild(airportContainer);
       }
       return;
     }
@@ -738,10 +806,12 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
     mapWrapper.style.display = 'none';
 
     const filtered = AIRPORTS.filter(a =>
-      a.iata.toLowerCase().includes(q) ||
-      a.name.toLowerCase().includes(q) ||
-      a.city.toLowerCase().includes(q) ||
-      countryLabel(a.country).toLowerCase().includes(q)
+      (getAllowedFn ? getAllowedFn(a) : true) && (
+        a.iata.toLowerCase().includes(q) ||
+        a.name.toLowerCase().includes(q) ||
+        a.city.toLowerCase().includes(q) ||
+        countryLabel(a.country).toLowerCase().includes(q)
+      )
     );
     list.innerHTML = '';
     if (filtered.length === 0) {
@@ -1008,10 +1078,65 @@ if (simpleSearchCheck) {
   });
 }
 
+/* ── Show-all-airports filter ── */
+let showAllAirports = false;
+try { showAllAirports = localStorage.getItem('showAllAirports') === '1'; } catch(e) {}
+
+function isAirportAllowed(a) {
+  if (showAllAirports) return true;
+  return (a.importance || 1) >= 3;
+}
+
+function applyShowAllAirports(val) {
+  showAllAirports = val;
+  try { localStorage.setItem('showAllAirports', val ? '1' : '0'); } catch(e) {}
+  // Re-apply allowed filter on both selectors so they re-render
+  selectorFrom.setGetAllowed(isAirportAllowed);
+  selectorTo.setGetAllowed(isAirportAllowed);
+  selectorFrom.clearDisallowed();
+  selectorTo.clearDisallowed();
+  selectorFrom.refresh();
+  selectorTo.refresh();
+  // Sync express selectors if present
+  if (typeof exSelectorFrom !== 'undefined') {
+    exSelectorFrom.setGetAllowed(isAirportAllowed);
+    exSelectorTo.setGetAllowed(isAirportAllowed);
+    exSelectorFrom.clearDisallowed();
+    exSelectorTo.clearDisallowed();
+    exSelectorFrom.refresh?.();
+    exSelectorTo.refresh?.();
+  }
+}
+
+const showAllAirportsCheck = document.getElementById('showAllAirportsCheck');
+if (showAllAirportsCheck) {
+  showAllAirportsCheck.checked = showAllAirports;
+  showAllAirportsCheck.addEventListener('change', () => {
+    applyShowAllAirports(showAllAirportsCheck.checked);
+    const exChk = document.getElementById('exShowAllAirportsCheck');
+    if (exChk) exChk.checked = showAllAirports;
+  });
+}
+const exShowAllAirportsCheck = document.getElementById('exShowAllAirportsCheck');
+if (exShowAllAirportsCheck) {
+  exShowAllAirportsCheck.checked = showAllAirports;
+  exShowAllAirportsCheck.addEventListener('change', () => {
+    applyShowAllAirports(exShowAllAirportsCheck.checked);
+    if (showAllAirportsCheck) showAllAirportsCheck.checked = showAllAirports;
+  });
+}
+
+// Keep tooltip text in sync with language changes
+onLangChange(() => {
+  document.querySelectorAll('.tooltip-icon[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+});
+
 /* ── IATA routes: determine which airports are selectable ── */
 
-selectorFrom.setGetAllowed(() => true);
-selectorTo.setGetAllowed(() => true);
+selectorFrom.setGetAllowed(isAirportAllowed);
+selectorTo.setGetAllowed(isAirportAllowed);
 
 selectorFrom.setOnChange(() => selectorTo.refresh());
 selectorTo.setOnChange(() => selectorFrom.refresh());
