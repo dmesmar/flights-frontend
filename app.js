@@ -1100,19 +1100,20 @@ if (simpleSearchCheck) {
   simpleSearchCheck.checked = simpleSearchMode;
   simpleSearchCheck.addEventListener('change', () => {
     setSimpleSearchMode(simpleSearchCheck.checked);
-    // Sync the express checkbox if present
-    const exChk = document.getElementById('exSimpleSearchCheck');
-    if (exChk) exChk.checked = simpleSearchMode;
-    // Show/hide mobile warning
+    // Sync the other checkboxes if present
+    ['exSimpleSearchCheck', 'chSimpleSearchCheck', 'rtSimpleSearchCheck'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = simpleSearchMode;
+      const row = el?.closest('.simple-search-row');
+      if (row) {
+        if (!simpleSearchMode) showSimpleSearchWarning(row);
+        else hideSimpleSearchWarning(row);
+      }
+    });
+    // Show/hide mobile warning on the main row
     const row = simpleSearchCheck.closest('.simple-search-row');
     if (!simpleSearchMode) showSimpleSearchWarning(row);
     else hideSimpleSearchWarning(row);
-    // Sync warning on express form too
-    const exRow = exChk?.closest('.simple-search-row');
-    if (exRow) {
-      if (!simpleSearchMode) showSimpleSearchWarning(exRow);
-      else hideSimpleSearchWarning(exRow);
-    }
   });
 }
 
@@ -1153,6 +1154,8 @@ function applyShowAllAirports(val) {
     chSelectorFrom.refresh?.();
     chSelectorTo.refresh?.();
   }
+  // Notify other modules (e.g. round-trip) via a custom event
+  document.dispatchEvent(new CustomEvent('showAllAirportsChanged', { detail: val }));
 }
 
 const showAllAirportsCheck = document.getElementById('showAllAirportsCheck');
@@ -1160,8 +1163,10 @@ if (showAllAirportsCheck) {
   showAllAirportsCheck.checked = showAllAirports;
   showAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(showAllAirportsCheck.checked);
-    const exChk = document.getElementById('exShowAllAirportsCheck');
-    if (exChk) exChk.checked = showAllAirports;
+    ['exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = showAllAirports;
+    });
   });
 }
 const exShowAllAirportsCheck = document.getElementById('exShowAllAirportsCheck');
@@ -1169,7 +1174,10 @@ if (exShowAllAirportsCheck) {
   exShowAllAirportsCheck.checked = showAllAirports;
   exShowAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(exShowAllAirportsCheck.checked);
-    if (showAllAirportsCheck) showAllAirportsCheck.checked = showAllAirports;
+    ['showAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = showAllAirports;
+    });
   });
 }
 

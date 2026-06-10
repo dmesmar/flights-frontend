@@ -1,11 +1,11 @@
 /* ---------------------------------------------------------------
-   GEO — Distance utilities for European airports
+   GEO — Distance utilities for worldwide airports
 
    Depends on: airports.js (AIRPORTS global),
                airport_coords.js (AIRPORT_COORDS global)
 
-   European-only: airports whose country is not in
-   EUROPEAN_COUNTRIES are ignored silently.
+   Covers all airports in airports.js that have coordinates in
+   the OurAirports dataset (~6,893 airports worldwide).
 
    Public API (all globals):
      haversineKm(lat1, lon1, lat2, lon2) → number
@@ -14,15 +14,6 @@
 
    NearbyResult: { iata, name, city, country, importance, distanceKm }
 --------------------------------------------------------------- */
-
-const EUROPEAN_COUNTRIES = new Set([
-  'AD','AL','AT','BA','BE','BG','BY','CH','CY','CZ',
-  'DE','DK','EE','ES','FI','FO','FR','GB','GE','GG',
-  'GI','GR','HR','HU','IE','IM','IS','IT','JE','LI',
-  'LT','LU','LV','MC','MD','ME','MK','MT','NL','NO',
-  'PL','PT','RO','RS','RU','SE','SI','SK','SJ','SM',
-  'TR','UA','VA','XK',
-]);
 
 /**
  * Great-circle distance between two geographic points (Haversine formula).
@@ -46,7 +37,7 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 
 /**
  * Distance in kilometres between two airports by IATA code.
- * Returns null if either airport is not a known European airport.
+ * Returns null if either airport has no coordinates.
  * @param {string} iata1
  * @param {string} iata2
  * @returns {number | null}
@@ -59,7 +50,7 @@ function getAirportDistance(iata1, iata2) {
 }
 
 /**
- * Returns all European airports within radiusKm of the given airport,
+ * Returns all airports within radiusKm of the given airport,
  * sorted by ascending distance.
  *
  * @param {string} iataCode - Origin airport IATA code
@@ -78,7 +69,6 @@ function getNearbyAirports(iataCode, radiusKm, options = {}) {
 
   for (const airport of AIRPORTS) {
     if (airport.iata === iataCode) continue;
-    if (!EUROPEAN_COUNTRIES.has(airport.country)) continue;
     if (airport.importance < minImportance) continue;
 
     const coords = AIRPORT_COORDS[airport.iata];

@@ -40,6 +40,7 @@
       <button class="tab-btn" data-tab="saved">&#x2665;&#xFE0F; <span data-i18n="tab_saved_text">Guardados</span> <span class="saved-count" id="savedCount"></span></button>
       <button class="tab-btn" data-tab="express">&#x26A1; <span data-i18n="tab_express_text">Exprés</span></button>
       <button class="tab-btn" data-tab="cheap">&#x1F4B8; <span data-i18n="tab_cheap_text">Baratos</span></button>
+      <button class="tab-btn" data-tab="roundtrip">&#x1F30D; <span data-i18n="tab_roundtrip_text">Viaje</span></button>
       <button class="tab-btn" data-tab="logs" id="tabLogs" style="display:none">&#x1F4CB; <span data-i18n="tab_logs_text">Logs</span></button>
     </div>
 
@@ -189,6 +190,7 @@
     <!-- Saved tab -->
     <div class="tab-panel hidden" id="tab-saved">
       <div id="savedExpressRoutes"></div>
+      <div id="savedRoundTrips"></div>
       <div id="savedSearches"></div>
       <div id="savedCheapSearches"></div>
       <div id="savedFlights"></div>
@@ -473,6 +475,185 @@
     </div>
     </div><!-- /tab-cheap -->
 
+    <!-- Round-trip tab -->
+    <div class="tab-panel hidden" id="tab-roundtrip">
+    <div class="search-card">
+      <h2 data-i18n="rt_title">Viaje Completo</h2>
+      <p class="express-subtitle" data-i18n="rt_subtitle">Busca ida y vuelta desde aeropuertos distintos</p>
+
+      <form id="roundTripForm" novalidate>
+
+        <!-- Outbound dates -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rtFechaIni" data-i18n="label_date_from">Fecha inicio</label>
+            <input type="date" id="rtFechaIni" required />
+          </div>
+          <div class="form-group">
+            <label for="rtFechaFin" data-i18n="label_date_to">Fecha fin</label>
+            <input type="date" id="rtFechaFin" required />
+          </div>
+        </div>
+
+        <!-- Date presets -->
+        <details class="advanced-settings" id="rtDatePresets">
+          <summary data-i18n="date_presets_toggle">📅 Selección rápida de fechas</summary>
+          <div class="advanced-body date-presets-body">
+            <button type="button" class="date-preset-btn" data-preset="this-weekend" data-i18n="preset_this_weekend">Este fin de semana</button>
+            <button type="button" class="date-preset-btn" data-preset="next-weekend" data-i18n="preset_next_weekend">Próximo fin de semana</button>
+            <button type="button" class="date-preset-btn" data-preset="next-2weeks" data-i18n="preset_next_2weeks">Próximas 2 semanas</button>
+            <button type="button" class="date-preset-btn" data-preset="next-2months" data-i18n="preset_next_2months">Próximos 2 meses</button>
+            <button type="button" class="date-preset-btn" data-preset="next-3months" data-i18n="preset_next_3months">Próximos 3 meses</button>
+            <button type="button" class="date-preset-btn date-preset-singlemonth" data-i18n="preset_single_month">📅 Mes entero</button>
+            <div class="month-picker-wrap single-month-wrap">
+              <select class="month-picker-sel year-single-sel"></select>
+              <select class="month-picker-sel month-single-sel"></select>
+            </div>
+            <button type="button" class="date-preset-btn date-preset-fullmonth" data-i18n="preset_full_month">📆 Rango de meses</button>
+            <div class="month-picker-wrap">
+              <label class="month-picker-label" data-i18n="preset_range_from">Desde</label>
+              <select class="month-picker-sel year-from-sel"></select>
+              <select class="month-picker-sel month-from-sel"></select>
+              <label class="month-picker-label" data-i18n="preset_range_to">Hasta</label>
+              <select class="month-picker-sel year-to-sel"></select>
+              <select class="month-picker-sel month-to-sel"></select>
+            </div>
+          </div>
+        </details>
+
+        <!-- Simple search toggle -->
+        <div class="simple-search-row">
+          <label class="simple-search-label">
+            <input type="checkbox" id="rtSimpleSearchCheck" checked />
+            <span data-i18n="label_simple_search">Búsqueda simple</span>
+          </label>
+          <label class="simple-search-label show-all-airports-label">
+            <input type="checkbox" id="rtShowAllAirportsCheck" />
+            <span data-i18n="label_show_all_airports">Ver todos los aeropuertos</span>
+            <span class="tooltip-icon" data-i18n-title="tooltip_show_all_airports" title="Por defecto solo se muestran aeropuertos relevantes (importancia 3–5). Activa esta opción para ver también aeropuertos pequeños, regionales y privados.">?</span>
+          </label>
+        </div>
+
+        <!-- Outbound airports -->
+        <div class="rt-section-label" data-i18n="rt_section_outbound">✈ Vuelo de ida</div>
+        <div class="form-row airport-swap-row">
+          <div class="form-group">
+            <label data-i18n="label_origin">Origen</label>
+            <div class="airport-selector" id="rtSelectorOutFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="rtTagsOutFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="swap-airports-btn" id="swapRt" aria-label="Intercambiar origen y destino" title="Intercambiar">⇄</button>
+
+          <div class="form-group">
+            <label data-i18n="label_dest">Destino</label>
+            <div class="airport-selector" id="rtSelectorOutTo">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="rtTagsOutTo"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Return airports -->
+        <div class="rt-section-label" data-i18n="rt_section_return">↩ Vuelo de vuelta</div>
+        <div class="form-row airport-swap-row">
+          <div class="form-group">
+            <label data-i18n="rt_return_from">Salida vuelta</label>
+            <div class="airport-selector" id="rtSelectorRetFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="rtTagsRetFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rt-swap-spacer"></div>
+
+          <div class="form-group">
+            <label data-i18n="rt_return_to">Destino vuelta</label>
+            <div class="airport-selector" id="rtSelectorRetTo">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="rtTagsRetTo"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stay duration -->
+        <div class="form-row rt-stay-row">
+          <div class="form-group">
+            <label for="rtMinStay" data-i18n="rt_min_stay">Estancia mínima (noches)</label>
+            <input type="number" id="rtMinStay" value="3" min="0" max="60" class="advanced-input" />
+          </div>
+          <div class="form-group">
+            <label for="rtMaxStay" data-i18n="rt_max_stay">Estancia máxima (noches)</label>
+            <input type="number" id="rtMaxStay" value="7" min="0" max="60" class="advanced-input" />
+          </div>
+        </div>
+
+        <!-- Max stops -->
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label data-i18n="label_max_stops">Máximo de escalas</label>
+          <div class="stops-row" id="rtStopsRow">
+            <button type="button" class="stop-btn active" data-value="0" data-i18n="stops_0">Sin escalas</button>
+            <button type="button" class="stop-btn" data-value="1" data-i18n="stops_1">1 escala</button>
+            <button type="button" class="stop-btn" data-value="2" data-i18n="stops_2">2 escalas</button>
+            <button type="button" class="stop-btn" data-value="3" data-i18n="stops_3">3 escalas</button>
+          </div>
+          <input type="hidden" id="rtMaxStops" value="0" />
+        </div>
+
+        <!-- Advanced settings -->
+        <details class="advanced-settings" id="rtAdvancedSettings">
+          <summary data-i18n="advanced_toggle">⚙ Ajustes avanzados</summary>
+          <div class="advanced-body">
+            <div class="advanced-field">
+              <label for="rtMaxResults" data-i18n="label_max_results">Máximo de vuelos por ruta</label>
+              <input type="number" id="rtMaxResults" min="1" max="10" value="3" class="advanced-input" />
+            </div>
+          </div>
+        </details>
+
+        <button type="submit" class="btn-search" id="rtSubmitBtn" data-i18n="rt_btn_search">🌍 Buscar viaje completo</button>
+        <div class="import-row">
+          <input type="file" id="rtImportFileInput" accept=".json" hidden />
+          <button type="button" class="btn-import" id="rtBtnImport" data-i18n="btn_import_rt">📂 Importar viaje</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Round-trip results -->
+    <div id="rtResults">
+      <div class="results-placeholder">
+        <span class="placeholder-icon">&#x1F30D;</span>
+        <span data-i18n="results_placeholder">Los resultados aparecerán aquí</span>
+      </div>
+    </div>
+    </div><!-- /tab-roundtrip -->
+
     <div class="tab-panel hidden" id="tab-logs">
       <div class="log-panel">
         <div class="log-toolbar">
@@ -519,5 +700,6 @@
   <script src="express.js"></script>
   <script src="cheap.js"></script>
   <script src="nearby-inline.js"></script>
+  <script src="round-trip.js"></script>
 </body>
 </html>

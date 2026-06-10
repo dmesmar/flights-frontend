@@ -34,7 +34,7 @@ if (chSimpleSearchCheck) {
   chSimpleSearchCheck.checked = simpleSearchMode;
   chSimpleSearchCheck.addEventListener('change', () => {
     setSimpleSearchMode(chSimpleSearchCheck.checked);
-    ['simpleSearchCheck', 'exSimpleSearchCheck'].forEach(id => {
+    ['simpleSearchCheck', 'exSimpleSearchCheck', 'rtSimpleSearchCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.checked = simpleSearchMode;
@@ -52,7 +52,7 @@ if (chShowAllAirportsCheck) {
   chShowAllAirportsCheck.checked = showAllAirports;
   chShowAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(chShowAllAirportsCheck.checked);
-    ['showAllAirportsCheck', 'exShowAllAirportsCheck'].forEach(id => {
+    ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.checked = showAllAirports;
     });

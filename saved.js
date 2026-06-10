@@ -55,6 +55,7 @@ function updateSavedCount() {
 
 function renderSavedTab() {
   if (typeof renderSavedExpressRoutes === 'function') renderSavedExpressRoutes();
+  if (typeof renderSavedRoundTrips    === 'function') renderSavedRoundTrips();
   renderSavedSearches();
   renderSavedCheapSearches();
   const list = loadSaved();

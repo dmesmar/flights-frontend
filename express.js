@@ -37,16 +37,16 @@ if (exSimpleSearchCheck) {
   exSimpleSearchCheck.checked = simpleSearchMode;
   exSimpleSearchCheck.addEventListener('change', () => {
     setSimpleSearchMode(exSimpleSearchCheck.checked);
-    // Sync main search checkbox and its warning
-    const mainChk = document.getElementById('simpleSearchCheck');
-    if (mainChk) {
-      mainChk.checked = simpleSearchMode;
-      const mainRow = mainChk.closest('.simple-search-row');
-      if (mainRow) {
-        if (!simpleSearchMode) showSimpleSearchWarning(mainRow);
-        else hideSimpleSearchWarning(mainRow);
+    // Sync the other checkboxes and their warnings
+    ['simpleSearchCheck', 'chSimpleSearchCheck', 'rtSimpleSearchCheck'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = simpleSearchMode;
+      const row = el?.closest('.simple-search-row');
+      if (row) {
+        if (!simpleSearchMode) showSimpleSearchWarning(row);
+        else hideSimpleSearchWarning(row);
       }
-    }
+    });
     // Show/hide warning on this form
     const exRow = exSimpleSearchCheck.closest('.simple-search-row');
     if (exRow) {
