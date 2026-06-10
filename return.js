@@ -118,6 +118,14 @@ function openReturnModal(flight) {
   const rmTo = createAirportSelector(document.getElementById('rmSelectorTo'), undefined, { forceSimple: true });
   rmTo.setSelected([flight.origen]);
 
+  /* ── Nearby inline panels ── */
+  if (typeof initNearbyInlinePanel === 'function') {
+    const rmFromField = modal.querySelector('#rmSelectorFrom')?.closest('.rm-airport-field');
+    const rmToField   = modal.querySelector('#rmSelectorTo')?.closest('.rm-airport-field');
+    if (rmFromField) initNearbyInlinePanel(rmFrom, rmFromField, 'ni-rm-from');
+    if (rmToField)   initNearbyInlinePanel(rmTo,   rmToField,   'ni-rm-to');
+  }
+
   document.getElementById('returnModalClose').addEventListener('click', () => modal.remove());
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   document.getElementById('rmMinDays').addEventListener('change', () => {

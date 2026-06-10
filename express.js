@@ -60,6 +60,14 @@ exSelectorFrom.setGetAllowed(() => true);
 exSelectorTo.setGetAllowed(() => true);
 exSelectorFrom.setOnChange(() => exSelectorTo.refresh());
 
+/* ── Swap origin ↔ destination ── */
+document.getElementById('swapExpress')?.addEventListener('click', () => {
+  const fromSel = exSelectorFrom.getSelected();
+  const toSel   = exSelectorTo.getSelected();
+  exSelectorFrom.setSelected(toSel);
+  exSelectorTo.setSelected(fromSel);
+});
+
 /* ── Stops selector ── */
 document.getElementById('exStopsRow')?.addEventListener('click', (e) => {
   const btn = e.target.closest('.stop-btn');

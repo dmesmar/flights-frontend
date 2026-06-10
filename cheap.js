@@ -20,6 +20,14 @@ chSelectorTo.setGetAllowed(isAirportAllowed);
 chSelectorFrom.setOnChange(() => chSelectorTo.refresh());
 chSelectorTo.setOnChange(() => chSelectorFrom.refresh());
 
+/* ── Swap origin ↔ destination ── */
+document.getElementById('swapCheap')?.addEventListener('click', () => {
+  const fromSel = chSelectorFrom.getSelected();
+  const toSel   = chSelectorTo.getSelected();
+  chSelectorFrom.setSelected(toSel);
+  chSelectorTo.setSelected(fromSel);
+});
+
 /* ── Simple search checkbox sync ── */
 const chSimpleSearchCheck = document.getElementById('chSimpleSearchCheck');
 if (chSimpleSearchCheck) {

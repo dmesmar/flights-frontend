@@ -101,7 +101,7 @@
           </label>
         </div>
 
-        <div class="form-row">
+        <div class="form-row airport-swap-row">
           <div class="form-group">
             <label data-i18n="label_origin">Origen</label>
             <div class="airport-selector" id="selectorFrom">
@@ -115,6 +115,8 @@
               </div>
             </div>
           </div>
+
+          <button type="button" class="swap-airports-btn" id="swapMain" aria-label="Intercambiar origen y destino" title="Intercambiar">⇄</button>
 
           <!-- Destination airports -->
           <div class="form-group">
@@ -251,7 +253,7 @@
           </label>
         </div>
 
-        <div class="form-row">
+        <div class="form-row airport-swap-row">
           <div class="form-group">
             <label data-i18n="label_origin">Origen</label>
             <div class="airport-selector" id="exSelectorFrom">
@@ -265,6 +267,8 @@
               </div>
             </div>
           </div>
+
+          <button type="button" class="swap-airports-btn" id="swapExpress" aria-label="Intercambiar origen y destino" title="Intercambiar">⇄</button>
 
           <!-- Destination airports -->
           <div class="form-group">
@@ -393,7 +397,7 @@
           </label>
         </div>
 
-        <div class="form-row">
+        <div class="form-row airport-swap-row">
           <div class="form-group">
             <label data-i18n="label_origin">Origen</label>
             <div class="airport-selector" id="chSelectorFrom">
@@ -407,6 +411,9 @@
               </div>
             </div>
           </div>
+
+          <button type="button" class="swap-airports-btn" id="swapCheap" aria-label="Intercambiar origen y destino" title="Intercambiar">⇄</button>
+
           <div class="form-group">
             <label data-i18n="label_dest">Destino</label>
             <div class="airport-selector" id="chSelectorTo">
@@ -465,6 +472,7 @@
       </div>
     </div>
     </div><!-- /tab-cheap -->
+
     <div class="tab-panel hidden" id="tab-logs">
       <div class="log-panel">
         <div class="log-toolbar">
@@ -500,6 +508,8 @@
   <script src="i18n.js"></script>
   <script src="iata_routes.js"></script>
   <script src="airports.js"></script>
+  <script src="airport_coords.js"></script>
+  <script src="geo.js"></script>
   <script src="render.js"></script>
   <script src="saved.js"></script>
   <script src="filters.js"></script>
@@ -508,5 +518,6 @@
   <script src="app.js"></script>
   <script src="express.js"></script>
   <script src="cheap.js"></script>
+  <script src="nearby-inline.js"></script>
 </body>
 </html>

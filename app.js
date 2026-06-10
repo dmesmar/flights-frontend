@@ -1039,6 +1039,12 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
     },
     setGetAllowed:   (fn) => { getAllowedFn = fn; },
     setOnChange:     (fn) => { onChangeCb = fn; },
+    /* Adds an extra listener without replacing the existing one.
+       Safe to call after setOnChange — chains on top of it. */
+    addOnChange:     (fn) => {
+      const prev = onChangeCb;
+      onChangeCb = () => { prev?.(); fn(); };
+    },
     clearDisallowed: () => {
       if (!getAllowedFn) return;
       const toRemove = AIRPORTS.filter(a => selected.has(a.iata) && !getAllowedFn(a));
@@ -1181,6 +1187,14 @@ selectorTo.setGetAllowed(isAirportAllowed);
 
 selectorFrom.setOnChange(() => selectorTo.refresh());
 selectorTo.setOnChange(() => selectorFrom.refresh());
+
+/* ── Swap origin ↔ destination ── */
+document.getElementById('swapMain')?.addEventListener('click', () => {
+  const fromSel = selectorFrom.getSelected();
+  const toSel   = selectorTo.getSelected();
+  selectorFrom.setSelected(toSel);
+  selectorTo.setSelected(fromSel);
+});
 
 const API_BASE = IS_LOCAL
   ? 'http://localhost:8000'
