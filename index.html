@@ -36,11 +36,22 @@
 
     <!-- Tabs -->
     <div class="tabs-bar">
+      <!-- Grupo: Buscar (sabes a dónde vas) -->
       <button class="tab-btn active" data-tab="search">&#x2708;&#xFE0F; <span data-i18n="tab_search_text">Búsqueda</span></button>
-      <button class="tab-btn" data-tab="saved">&#x2665;&#xFE0F; <span data-i18n="tab_saved_text">Guardados</span> <span class="saved-count" id="savedCount"></span></button>
-      <button class="tab-btn" data-tab="express">&#x26A1; <span data-i18n="tab_express_text">Exprés</span></button>
+      <button class="tab-btn" data-tab="roundtrip">&#x1F30D; <span data-i18n="tab_roundtrip_text">Viaje (Ida + Vuelta)</span></button>
+      <button class="tab-btn" data-tab="multicity">&#x1F6EB; <span data-i18n="tab_multicity_text">Multi-ciudad</span></button>
+      <button class="tab-btn" data-tab="express">&#x26A1; <span data-i18n="tab_express_text">Viaje Exprés</span></button>
+      <!-- Separador visual entre grupos -->
+      <span class="tab-group-sep" aria-hidden="true"></span>
+      <!-- Grupo: Descubrir (precios sin destino fijo) -->
       <button class="tab-btn" data-tab="cheap">&#x1F4B8; <span data-i18n="tab_cheap_text">Baratos</span></button>
-      <button class="tab-btn" data-tab="roundtrip">&#x1F30D; <span data-i18n="tab_roundtrip_text">Viaje</span></button>
+      <button class="tab-btn" data-tab="heatmap">&#x1F5D3;&#xFE0F; <span data-i18n="tab_heatmap_text">Heatmap</span></button>
+      <button class="tab-btn" data-tab="direct">&#x1F3AF; <span data-i18n="tab_direct_text">Directos</span></button>
+      <button class="tab-btn" data-tab="surprise">&#x1F3B2; <span data-i18n="tab_surprise_text">Sorpréndeme</span></button>
+      <!-- Separador visual entre grupos -->
+      <span class="tab-group-sep" aria-hidden="true"></span>
+      <!-- Grupo: Mis datos -->
+      <button class="tab-btn" data-tab="saved">&#x2665;&#xFE0F; <span data-i18n="tab_saved_text">Guardados</span> <span class="saved-count" id="savedCount"></span></button>
       <button class="tab-btn" data-tab="logs" id="tabLogs" style="display:none">&#x1F4CB; <span data-i18n="tab_logs_text">Logs</span></button>
     </div>
 
@@ -189,6 +200,7 @@
 
     <!-- Saved tab -->
     <div class="tab-panel hidden" id="tab-saved">
+      <div id="statsDashboard"></div>
       <div id="savedExpressRoutes"></div>
       <div id="savedRoundTrips"></div>
       <div id="savedSearches"></div>
@@ -654,6 +666,223 @@
     </div>
     </div><!-- /tab-roundtrip -->
 
+    <!-- Direct-flights tab -->
+    <div class="tab-panel hidden" id="tab-direct">
+    <div class="search-card">
+      <h2 data-i18n="direct_title">🎯 Vuelos Directos</h2>
+      <p class="express-subtitle" data-i18n="direct_subtitle">Todos los destinos a los que puedes volar sin escala desde tu aeropuerto</p>
+
+      <form id="directForm" novalidate>
+        <div class="simple-search-row">
+          <label class="simple-search-label">
+            <input type="checkbox" id="dirShowAllAirportsCheck" />
+            <span data-i18n="label_show_all_airports">Ver todos los aeropuertos</span>
+            <span class="tooltip-icon" data-i18n-title="tooltip_show_all_airports" title="Por defecto solo se muestran aeropuertos relevantes (importancia 3–5). Activa esta opción para ver también aeropuertos pequeños, regionales y privados.">?</span>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="direct_label_origin">Aeropuerto de origen</label>
+            <div class="airport-selector" id="dirSelectorFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="dirTagsFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-search" id="dirSubmitBtn" data-i18n="direct_btn_search">🎯 Ver destinos directos</button>
+      </form>
+    </div>
+
+    <div id="dirResults">
+      <div class="results-placeholder">
+        <span class="placeholder-icon">&#x1F3AF;</span>
+        <span data-i18n="direct_placeholder">Selecciona un aeropuerto para ver sus destinos directos.</span>
+      </div>
+    </div>
+    </div><!-- /tab-direct -->
+
+    <!-- Surprise me tab -->
+    <div class="tab-panel hidden" id="tab-surprise">
+    <div class="search-card">
+      <h2 data-i18n="surprise_title">🎲 Sorpréndeme</h2>
+      <p class="express-subtitle" data-i18n="surprise_subtitle">¿No sabes a dónde ir? Te sugerimos un destino al azar</p>
+
+      <form id="surpriseForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="surprise_label_origin">Aeropuerto de salida</label>
+            <div class="airport-selector" id="surSelectorFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="surTagsFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="surContinent" data-i18n="surprise_label_continent">Continente (opcional)</label>
+            <select id="surContinent" class="advanced-input">
+              <option value="all" data-i18n="surprise_continent_all">Cualquiera</option>
+              <option value="EU" data-i18n="surprise_continent_EU">Europa</option>
+              <option value="AM" data-i18n="surprise_continent_AM">América</option>
+              <option value="AS" data-i18n="surprise_continent_AS">Asia</option>
+              <option value="AF" data-i18n="surprise_continent_AF">África</option>
+              <option value="OC" data-i18n="surprise_continent_OC">Oceanía</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-search" id="surSubmitBtn" data-i18n="surprise_btn">🎲 ¡Sorpréndeme!</button>
+      </form>
+    </div>
+
+    <div id="surResults"></div>
+    </div><!-- /tab-surprise -->
+
+    <!-- Heatmap tab -->
+    <div class="tab-panel hidden" id="tab-heatmap">
+    <div class="search-card">
+      <h2 data-i18n="heatmap_title">🗓️ Heatmap de precios</h2>
+      <p class="express-subtitle" data-i18n="heatmap_subtitle">Mira el precio mínimo por día para una ruta en un mes</p>
+
+      <form id="heatmapForm" novalidate>
+        <div class="form-row airport-swap-row">
+          <div class="form-group">
+            <label data-i18n="label_origin">Origen</label>
+            <div class="airport-selector" id="hmSelectorFrom">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="hmTagsFrom"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="rt-swap-spacer"></div>
+          <div class="form-group">
+            <label data-i18n="label_dest">Destino</label>
+            <div class="airport-selector" id="hmSelectorTo">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="hmTagsTo"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox">
+                <div class="dropdown-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hmYear" data-i18n="heatmap_label_year">Año</label>
+            <select id="hmYear" class="advanced-input"></select>
+          </div>
+          <div class="form-group">
+            <label for="hmMonth" data-i18n="heatmap_label_month">Mes</label>
+            <select id="hmMonth" class="advanced-input"></select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-search" id="hmSubmitBtn" data-i18n="heatmap_btn">🗓️ Generar heatmap</button>
+      </form>
+    </div>
+
+    <div id="hmResults"></div>
+    </div><!-- /tab-heatmap -->
+
+    <!-- Multi-city tab -->
+    <div class="tab-panel hidden" id="tab-multicity">
+    <div class="search-card">
+      <h2 data-i18n="multicity_title">🛫 Viaje Multi-ciudad</h2>
+      <p class="express-subtitle" data-i18n="multicity_subtitle">Planifica un viaje con varias paradas (open-jaw)</p>
+
+      <form id="multicityForm" novalidate>
+
+        <!-- Origin -->
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="multicity_label_origin">Aeropuerto de origen</label>
+            <div class="airport-selector" id="mcSelectorOrigin">
+              <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                <div class="airport-trigger-tokens" id="mcTagsOrigin"></div>
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <span class="airport-trigger-arrow">&#x25BE;</span>
+              </div>
+              <div class="airport-dropdown" role="listbox"><div class="dropdown-list"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destinations -->
+        <div class="mc-section-label" data-i18n="multicity_label_destinations">Destinos (en orden)</div>
+        <div id="mcDestinationsContainer"></div>
+        <div class="mc-dest-actions">
+          <button type="button" class="btn-import" id="mcAddDestBtn" data-i18n="multicity_dest_add">+ Añadir destino</button>
+        </div>
+
+        <!-- Dates -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mcStartDate" data-i18n="multicity_label_start_date">Fecha de salida</label>
+            <input type="date" id="mcStartDate" required />
+          </div>
+          <div class="form-group">
+            <label for="mcEndDate" data-i18n="multicity_label_end_date">Volver antes del</label>
+            <input type="date" id="mcEndDate" required />
+          </div>
+        </div>
+
+        <!-- Nights -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mcMinNights" data-i18n="multicity_label_min_nights">Mín. noches por destino</label>
+            <input type="number" id="mcMinNights" value="1" min="1" max="30" class="advanced-input" />
+          </div>
+          <div class="form-group">
+            <label for="mcMaxNights" data-i18n="multicity_label_max_nights">Máx. noches por destino</label>
+            <input type="number" id="mcMaxNights" value="4" min="1" max="30" class="advanced-input" />
+          </div>
+        </div>
+
+        <div class="simple-search-row">
+          <label class="simple-search-label">
+            <input type="checkbox" id="mcReturnToOrigin" checked />
+            <span data-i18n="multicity_label_return">Volver al origen al final</span>
+          </label>
+        </div>
+
+        <div class="simple-search-row">
+          <label class="simple-search-label">
+            <input type="checkbox" id="mcTryAllOrders" />
+            <span data-i18n="multicity_label_try_all_orders">Probar todos los órdenes posibles (más lento)</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-search" id="mcSubmitBtn" data-i18n="multicity_btn_search">🛫 Buscar viaje multi-ciudad</button>
+      </form>
+    </div>
+
+    <div id="mcResults"></div>
+    </div><!-- /tab-multicity -->
+
     <div class="tab-panel hidden" id="tab-logs">
       <div class="log-panel">
         <div class="log-toolbar">
@@ -701,5 +930,13 @@
   <script src="cheap.js"></script>
   <script src="nearby-inline.js"></script>
   <script src="round-trip.js"></script>
+  <script src="direct-flights.js"></script>
+  <script src="stats.js"></script>
+  <script src="chollo.js"></script>
+  <script src="surprise.js"></script>
+  <script src="share.js"></script>
+  <script src="heatmap.js"></script>
+  <script src="route-map.js"></script>
+  <script src="multi-city.js"></script>
 </body>
 </html>

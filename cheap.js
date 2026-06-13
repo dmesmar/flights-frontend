@@ -52,7 +52,7 @@ if (chShowAllAirportsCheck) {
   chShowAllAirportsCheck.checked = showAllAirports;
   chShowAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(chShowAllAirportsCheck.checked);
-    ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
+    ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.checked = showAllAirports;
     });
@@ -176,6 +176,7 @@ function renderCheapSection(elapsedMs) {
        <span class="cheap-elapsed">${elapsed}</span>
        <button type="button" class="filter-reset-btn" id="chSaveSearchBtn">${t('ch_ss_save')}</button>
        <button type="button" class="filter-reset-btn" id="chDownloadBtn">${t('btn_download_json')}</button>
+       <button type="button" class="filter-reset-btn" id="chShareBtn" title="${t('share_btn_title')}">${t('share_btn')}</button>
        <button type="button" class="filter-reset-btn" id="chCollapseAllBtn">${t('cheap_collapse_all')}</button>
      </div>` +
     `<div id="cheapGrid"></div>`;
@@ -192,6 +193,25 @@ function renderCheapSection(elapsedMs) {
     const btn = document.getElementById('chSaveSearchBtn');
     if (btn) { btn.textContent = t('btn_save_done'); btn.disabled = true; }
     if (!document.getElementById('tab-saved').classList.contains('hidden')) renderSavedCheapSearches();
+  });
+
+  document.getElementById('chShareBtn')?.addEventListener('click', async () => {
+    if (typeof window.copyShareUrl !== 'function') return;
+    const params = {
+      kind:    'cheap',
+      from:    chSearchedFrom,
+      to:      chSelectorTo.getSelected(),
+      dateIni: chSearchedDateIni,
+      dateFin: chSearchedDateFin,
+    };
+    const ok = await window.copyShareUrl(params);
+    const btn = document.getElementById('chShareBtn');
+    if (ok && btn) {
+      const orig = btn.textContent;
+      btn.textContent = t('share_copied');
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2200);
+    }
   });
 
   document.getElementById('chDownloadBtn')?.addEventListener('click', () => {

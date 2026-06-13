@@ -567,6 +567,7 @@ function buildExpressResultsHeader() {
       <div class="results-header-actions">
         <button type="button" class="results-action-btn" id="exBtnSave">${t('btn_save_search')}</button>
         <button type="button" class="results-action-btn" id="exBtnDownload">${t('btn_download_json')}</button>
+        <button type="button" class="results-action-btn" id="exBtnShare" title="${t('share_btn_title')}">${t('share_btn')}</button>
       </div>
     </div>`;
 }
@@ -598,6 +599,24 @@ function bindExpressResultsHeaderBtns(vuelosOut, vuelosRet, elapsedS) {
   });
   document.getElementById('exBtnDownload')?.addEventListener('click', () => {
     downloadExpressJSON(snapshot);
+  });
+  document.getElementById('exBtnShare')?.addEventListener('click', async () => {
+    if (typeof window.copyShareUrl !== 'function') return;
+    const params = {
+      kind:    'express',
+      from,
+      to,
+      dateIni: document.getElementById('exFechaIni')?.value || '',
+      dateFin: document.getElementById('exFechaFin')?.value || '',
+    };
+    const ok = await window.copyShareUrl(params);
+    const btn = document.getElementById('exBtnShare');
+    if (ok && btn) {
+      const orig = btn.textContent;
+      btn.textContent = t('share_copied');
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2200);
+    }
   });
 }
 

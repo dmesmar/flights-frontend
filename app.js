@@ -1163,7 +1163,7 @@ if (showAllAirportsCheck) {
   showAllAirportsCheck.checked = showAllAirports;
   showAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(showAllAirportsCheck.checked);
-    ['exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
+    ['exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.checked = showAllAirports;
     });
@@ -1174,7 +1174,7 @@ if (exShowAllAirportsCheck) {
   exShowAllAirportsCheck.checked = showAllAirports;
   exShowAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(exShowAllAirportsCheck.checked);
-    ['showAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck'].forEach(id => {
+    ['showAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.checked = showAllAirports;
     });

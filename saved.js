@@ -54,6 +54,7 @@ function updateSavedCount() {
 }
 
 function renderSavedTab() {
+  if (typeof window.renderStatsDashboard === 'function') window.renderStatsDashboard();
   if (typeof renderSavedExpressRoutes === 'function') renderSavedExpressRoutes();
   if (typeof renderSavedRoundTrips    === 'function') renderSavedRoundTrips();
   renderSavedSearches();
@@ -288,6 +289,7 @@ function buildResultsHeader(data, elapsedMs) {
       <div class="results-header-actions">
         <button type="button" class="results-action-btn" id="btnSaveSearch">${t('btn_save_search')}</button>
         <button type="button" class="results-action-btn" id="btnDownloadJSON">${t('btn_download_json')}</button>
+        <button type="button" class="results-action-btn" id="btnShareSearch" title="${t('share_btn_title')}">${t('share_btn')}</button>
       </div>
     </div>`;
 }
@@ -300,6 +302,25 @@ function bindResultsHeaderBtns(data) {
   });
   document.getElementById('btnDownloadJSON')?.addEventListener('click', () => {
     downloadResultsJSON(data);
+  });
+  document.getElementById('btnShareSearch')?.addEventListener('click', async () => {
+    if (typeof window.copyShareUrl !== 'function') return;
+    const params = {
+      kind:     'main',
+      from:     (typeof selectorFrom !== 'undefined') ? selectorFrom.getSelected() : [],
+      to:       (typeof selectorTo   !== 'undefined') ? selectorTo.getSelected()   : [],
+      dateIni:  document.getElementById('fechaIni')?.value || '',
+      dateFin:  document.getElementById('fechaFin')?.value || '',
+      maxStops: parseInt(document.getElementById('maxStops')?.value) || 0,
+    };
+    const ok = await window.copyShareUrl(params);
+    const btn = document.getElementById('btnShareSearch');
+    if (ok && btn) {
+      const orig = btn.textContent;
+      btn.textContent = t('share_copied');
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2200);
+    }
   });
 }
 function loadSearchSnapshot(data) {
