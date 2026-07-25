@@ -68,6 +68,7 @@ function applyDevMode(active) {
   localStorage.setItem('devMode', active ? '1' : '0');
   tabLogs.style.display = (active && IS_LOCAL) ? '' : 'none';
   devModeToggle.classList.toggle('dev-mode-active', active);
+  document.documentElement.classList.toggle('dev-mode-active', active);
   devModeLabel.textContent = t(active ? 'devMode_label_active' : 'devMode_label');
   // If logs tab is active but dev mode turned off, switch to search
   if (!active && document.querySelector('.tab-btn[data-tab="logs"]')?.classList.contains('active')) {
@@ -311,6 +312,36 @@ if (typeof CONTINENT_MAPS !== 'undefined') {
       _continentDocs[def.id] = new DOMParser().parseFromString(def.svgStr, 'image/svg+xml');
     } catch (_) {}
   }
+}
+
+/* ═══════════════════════════════════════════
+   visualViewport tracker — publica --vv-h / --vv-t en <html> mientras
+   haya un airport sheet abierto. Sirve para que el sheet y los elementos
+   fijos se ajusten al área realmente visible cuando iOS abre el teclado.
+═══════════════════════════════════════════ */
+let __vvHandler = null;
+function __applyVV() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const r = document.documentElement.style;
+  r.setProperty('--vv-h', vv.height + 'px');
+  r.setProperty('--vv-t', (vv.offsetTop || 0) + 'px');
+}
+function startVisualViewportTracking() {
+  if (__vvHandler || !window.visualViewport) return;
+  __vvHandler = () => __applyVV();
+  window.visualViewport.addEventListener('resize', __vvHandler);
+  window.visualViewport.addEventListener('scroll', __vvHandler);
+  __applyVV();
+}
+function stopVisualViewportTracking() {
+  if (!__vvHandler || !window.visualViewport) return;
+  window.visualViewport.removeEventListener('resize', __vvHandler);
+  window.visualViewport.removeEventListener('scroll', __vvHandler);
+  __vvHandler = null;
+  const r = document.documentElement.style;
+  r.removeProperty('--vv-h');
+  r.removeProperty('--vv-t');
 }
 
 /* ═══════════════════════════════════════════
@@ -900,20 +931,25 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
       mapInjected = null; // force re-render so continent airports are freshly shown
       renderContinent(activeContinent);
     }
-    // On mobile: pin the dropdown just below the header so it always has max vertical space
+    // On mobile: turn the dropdown into a fullscreen sheet driven by CSS (100dvh
+    // adapts to iOS's keyboard). We don't move the trigger — CSS pins it via
+    // position:fixed so the search input stays reachable while the sheet is open.
     if (window.innerWidth <= 640) {
-      const headerEl = document.querySelector('header');
-      const topPos = headerEl ? headerEl.getBoundingClientRect().bottom + 8 : 64;
-      const w = window.innerWidth * 0.95;
-      const h = window.innerHeight - topPos - 8;
-      dropdown.style.position = 'fixed';
-      dropdown.style.top = topPos + 'px';
-      dropdown.style.left = ((window.innerWidth - w) / 2) + 'px';
-      dropdown.style.right = ((window.innerWidth - w) / 2) + 'px';
-      dropdown.style.width = w + 'px';
-      dropdown.style.minWidth = 'unset';
-      dropdown.style.maxWidth = w + 'px';
-      dropdown.style.maxHeight = h + 'px';
+      document.documentElement.classList.add('airport-sheet-open');
+      selectorEl.classList.add('airport-selector--sheet');
+      if (!dropdown.__mobileCloseBtn) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'airport-sheet-close';
+        btn.setAttribute('aria-label', 'Cerrar');
+        btn.textContent = 'Hecho';
+        // mousedown → preventDefault so it doesn't blur the input before its click fires
+        btn.addEventListener('mousedown', (e) => e.preventDefault());
+        btn.addEventListener('click', closeDropdown);
+        selectorEl.appendChild(btn);
+        dropdown.__mobileCloseBtn = btn;
+      }
+      startVisualViewportTracking();
     }
     searchInput.focus();
   }
@@ -922,15 +958,12 @@ function createAirportSelector(selectorEl, tagsEl, { forceSimple = false } = {})
     dropdown.classList.remove('open');
     trigger.setAttribute('aria-expanded', 'false');
     searchInput.value = '';
-    // Reset any mobile fixed positioning
-    dropdown.style.position = '';
-    dropdown.style.top = '';
-    dropdown.style.left = '';
-    dropdown.style.right = '';
-    dropdown.style.width = '';
-    dropdown.style.minWidth = '';
-    dropdown.style.maxWidth = '';
-    dropdown.style.maxHeight = '';
+    selectorEl.classList.remove('airport-selector--sheet');
+    // Release the mobile body-scroll lock (only if no other sheet is open)
+    if (!document.querySelector('.airport-selector--sheet')) {
+      document.documentElement.classList.remove('airport-sheet-open');
+      stopVisualViewportTracking();
+    }
   }
 
   function removeAirport(iata) {
