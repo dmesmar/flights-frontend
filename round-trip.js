@@ -100,7 +100,7 @@
     rtShowAllChk.checked = showAllAirports;
     rtShowAllChk.addEventListener('change', () => {
       applyShowAllAirports(rtShowAllChk.checked);
-      ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
+      ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'dirShowAllAirportsCheck', 'hmShowAllAirportsCheck', 'mcShowAllAirportsCheck', 'surShowAllAirportsCheck'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.checked = showAllAirports;
       });

@@ -360,9 +360,11 @@ select:focus {
   position: absolute;
   top: calc(100% + 0px);
   left: 0;
-  min-width: 100%;
-  width: 45vw;
-  max-width: 45vw;
+  right: 0;                               /* alinea el borde derecho con el trigger */
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
   background: var(--dropdown-bg);
   border: 1.5px solid var(--accent);
   border-top: none;
@@ -373,6 +375,9 @@ select:focus {
   display: none;
   flex-direction: column;
 }
+
+/* Y el trigger también en border-box para que ambos midan igual */
+.airport-trigger { box-sizing: border-box; }
 
 .airport-dropdown.open {
   display: flex;
@@ -2649,53 +2654,75 @@ select:focus {
   font-size: 0.85em;
 }
 
-/* ── Tabs ── */
+/* ── Tabs: agrupados por categoría (Con destino fijo / Sin destino cerrado / Mis vuelos) ── */
 .tabs-bar {
   display: flex;
-  gap: 0.2rem;
-  margin-bottom: 1.75rem;
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 0;
+  align-items: stretch;
+  gap: 0.85rem 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.35rem 0 0.15rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.tabs-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.tabs-group-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.75;
+  padding-left: 0.5rem;
+  user-select: none;
+}
+
+.tabs-group-btns {
+  display: inline-flex;
+  gap: 0.15rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem;
 }
 
 .tab-btn {
-  background: none;
+  background: transparent;
   border: none;
-  border-bottom: 3px solid transparent;
   color: var(--text-muted);
-  padding: 0.6rem 1.25rem;
-  font-size: 0.88rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: -2px;
-  border-radius: 8px 8px 0 0;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
-  letter-spacing: 0.01em;
+  border-radius: 999px;
+  transition: color 0.15s, background 0.15s, transform 0.05s;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
-.tab-btn:hover {
+.tab-btn:hover:not(.active) {
   color: var(--text);
-  background: var(--surface-2);
+  background: rgba(255,255,255,0.05);
 }
 
 .tab-btn.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  background: var(--surface-2);
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
+
+.tab-btn:active { transform: translateY(1px); }
 
 .tab-panel.hidden { display: none; }
 
-/* Visual separator between tab groups (Buscar | Descubrir | Mis datos) */
-.tab-group-sep {
-  display: inline-block;
-  width: 1px;
-  align-self: center;
-  height: 18px;
-  background: var(--border);
-  margin: 0 0.45rem;
-  opacity: 0.7;
-}
+/* Separador legacy — ya no se usa con la nueva estructura pero se deja oculto por si algún tema lo referencia */
+.tab-group-sep { display: none; }
 
 /* ── Log panel ── */
 .log-panel {
@@ -5580,9 +5607,13 @@ select:focus {
   position: relative;
 }
 
-/* Under-budget cells get a bright border so they pop visually */
+/* Under-budget cells: halo blanco/negro para que resalte sin chocar con
+   el gradiente rojo↔verde de los precios */
 .hm-cell.hm-cell-under-budget {
-  box-shadow: inset 0 0 0 2px #facc15, 0 0 6px rgba(250, 204, 21, 0.5);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.55),
+    0 0 4px rgba(0, 0, 0, 0.35);
 }
 
 .hm-card {
@@ -6227,46 +6258,60 @@ html.dev-mode-active .dir-count { display: inline !important; }
 
 html.dev-mode-active .hm-results-summary { display: block !important; }
 
+/* ── Heatmap: par mes+año ── */
+.hm-month-picker {
+  display: flex;
+  gap: 0.4rem;
+}
+.hm-month-picker select { flex: 1; min-width: 0; }
+
+/* Etiqueta del mes dentro del header de cada card del heatmap */
+.hm-card-month {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.85em;
+  margin-left: 0.2rem;
+}
+
 /* ── Tabs bar: prevenir overflow horizontal en móvil ── */
 /* Global: no permitir que el body haga scroll horizontal por culpa de nada */
 html, body { overflow-x: hidden; max-width: 100%; }
 
 @media (max-width: 720px) {
+  /* En móvil los 3 grupos se muestran uno debajo de otro; cada uno hace scroll
+     horizontal por dentro si sus botones no caben, sin arrastrar la página. */
   .tabs-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  .tabs-group { width: 100%; }
+  .tabs-group-label {
+    font-size: 0.62rem;
+    padding-left: 0.25rem;
+  }
+  .tabs-group-btns {
+    display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;               /* Firefox */
-    /* Fade en el borde derecho para indicar scroll */
-    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
-            mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
-    padding-bottom: 4px;                 /* deja espacio a la línea inferior activa */
-    margin-left: -0.5rem;                /* pegado al borde para aprovechar ancho */
-    margin-right: -0.5rem;
-    padding-left: 0.5rem;
-    padding-right: 1.25rem;
+    scrollbar-width: none;
+    max-width: 100%;
   }
-  .tabs-bar::-webkit-scrollbar { display: none; }   /* WebKit/Blink */
-
-  .tabs-bar .tab-btn {
+  .tabs-group-btns::-webkit-scrollbar { display: none; }
+  .tab-btn {
     flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 0.55rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
-  }
-
-  /* Separadores más finos en móvil para no comer espacio */
-  .tabs-bar .tab-group-sep {
-    margin: 0 0.15rem;
-    height: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .tabs-bar .tab-btn {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.75rem;
+  .tab-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.76rem;
     letter-spacing: 0;
   }
 }

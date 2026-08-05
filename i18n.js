@@ -15,12 +15,12 @@ const I18N = {
     theme_to_dark:         'Oscuro',
 
     /* ── Tabs ── */
-    tab_search_text:  'Búsqueda',
+    tab_search_text:  'Sólo ida',
     tab_saved_text:   'Guardados',
     tab_logs_text:    'Logs',
 
     /* ── Search form ── */
-    search_title:              'Buscar vuelos de ida',
+    search_title:              'Buscar un vuelo de ida en un rango de fechas',
     label_date_from:           'Fecha inicio',
     label_date_to:             'Fecha fin',
     label_days:                'Días de la semana',
@@ -180,8 +180,8 @@ const I18N = {
     nearby_inline_importance:   'Importancia mín.',
 
     /* ── Round-trip Planner ── */
-    tab_roundtrip_text:        'Viaje (Ida + Vuelta)',
-    rt_title:                  'Viaje Completo',
+    tab_roundtrip_text:        'Ida y vuelta',
+    rt_title:                  '🌍 Viaje de ida y vuelta con noches de estancia',
     rt_subtitle:               'Busca ida y vuelta desde aeropuertos distintos',
     rt_section_outbound:       '✈ Vuelo de ida',
     rt_section_return:         '↩ Vuelo de vuelta',
@@ -254,8 +254,8 @@ const I18N = {
     weekdays_plural:           ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'],
 
     /* ── Direct flights from home (feature #14) ── */
-    tab_direct_text:           'Directos',
-    direct_title:              '🎯 Vuelos Directos',
+    tab_direct_text:           'Sólo directos',
+    direct_title:              '🎯 Sólo vuelos directos desde tu origen',
     direct_subtitle:           'Todos los destinos a los que puedes volar sin escala desde tu aeropuerto',
     direct_label_origin:       'Aeropuerto de origen',
     direct_btn_search:         '🎯 Ver destinos directos',
@@ -316,7 +316,7 @@ const I18N = {
 
     /* ── #13 Sorpréndeme ── */
     tab_surprise_text:         'Sorpréndeme',
-    surprise_title:            '🎲 Sorpréndeme',
+    surprise_title:            '🎲 Sorpréndeme con un destino al azar',
     surprise_subtitle:         '¿No sabes a dónde ir? Te sugerimos un destino al azar',
     surprise_label_origin:     'Aeropuerto de salida',
     surprise_label_budget:     'Presupuesto máximo (opcional)',
@@ -343,12 +343,15 @@ const I18N = {
     share_invalid:             'El enlace de búsqueda no es válido.',
 
     /* ── #1 Heatmap de precios ── */
-    tab_heatmap_text:          'Heatmap',
-    heatmap_title:             '🗓️ Heatmap de precios',
-    heatmap_subtitle:          'Mira el precio mínimo por día para una ruta en un mes',
+    tab_heatmap_text:          'Calendario de precios',
+    heatmap_title:             '🗓️ Calendario de precios por día',
+    heatmap_subtitle:          'Mira el precio mínimo por día para una ruta en un rango de meses',
     heatmap_label_month:       'Mes',
     heatmap_label_year:        'Año',
-    heatmap_btn:               '🗓️ Generar heatmap',
+    heatmap_label_from:        'Mes de inicio',
+    heatmap_label_to:          'Mes final',
+    heatmap_alert_range:       'El mes final no puede ser anterior al mes de inicio.',
+    heatmap_btn:               '🗓️ Generar calendario',
     heatmap_loading:           'Buscando precios para todo el mes…',
     heatmap_no_data:           'No se encontraron vuelos para ese mes.',
     heatmap_legend_cheap:      'Más barato',
@@ -378,8 +381,8 @@ const I18N = {
     routemap_legend_ret:       '← Vuelta',
 
     /* ── #21 Multi-ciudad ── */
-    tab_multicity_text:        'Multi-ciudad',
-    multicity_title:           '🛫 Viaje Multi-ciudad',
+    tab_multicity_text:        'Varios destinos',
+    multicity_title:           '🛫 Viaje a varios destinos encadenados',
     multicity_subtitle:        'Planifica un viaje con varias paradas (open-jaw)',
     multicity_leg:             n => `Tramo ${n}`,
     multicity_leg_from:        'Origen',
@@ -387,7 +390,7 @@ const I18N = {
     multicity_leg_dates:       'Fechas',
     multicity_leg_remove:      'Quitar tramo',
     multicity_btn_add_leg:     '+ Añadir tramo',
-    multicity_btn_search:      '🛫 Buscar viaje multi-ciudad',
+    multicity_btn_search:      '🛫 Buscar viaje a varios destinos',
     multicity_btn_searching:   leg => `Buscando tramo ${leg}…`,
     multicity_min_legs:        'Debes tener al menos 2 tramos.',
     multicity_max_legs:        'Máximo 6 tramos.',
@@ -447,8 +450,8 @@ const I18N = {
     multicity_combo_pareto_label: '★ Pareto',
 
     /* ── Baratos ── */
-    tab_cheap_text:           'Baratos',
-    cheap_title:              '💸 Vuelos Baratos',
+    tab_cheap_text:           'Destinos baratos',
+    cheap_title:              '💸 Los destinos más baratos desde tu origen',
     cheap_subtitle:           'Los N vuelos más baratos por destino, de un vistazo',
     cheap_btn_search:         '💸 Buscar baratos',
     cheap_top_n_label:        'Vuelos por destino',
@@ -472,8 +475,8 @@ const I18N = {
     cheap_view_by_origin:     'Por origen',
 
     /* ── Express trip ── */
-    tab_express_text:       'Viaje Exprés',
-    express_title:          'Viaje Exprés',
+    tab_express_text:       'Escapada exprés',
+    express_title:          'Escapada exprés (ida y vuelta el mismo día)',
     express_subtitle:       'Ida por la mañana (04:00–11:59) · Vuelta por la tarde/noche del mismo día',
     btn_express_search:     '⚡ Buscar viaje exprés',
     express_searching_out:  'Buscando vuelos de ida…',
@@ -670,12 +673,12 @@ const I18N = {
     theme_to_dark:         'Dark',
 
     /* ── Tabs ── */
-    tab_search_text:  'Search',
+    tab_search_text:  'One-way',
     tab_saved_text:   'Saved',
     tab_logs_text:    'Logs',
 
     /* ── Search form ── */
-    search_title:              'Search flights (One-way)',
+    search_title:              'Search one-way flights over a date range',
     label_date_from:           'Start date',
     label_date_to:             'End date',
     label_days:                'Days of the week',
@@ -836,8 +839,8 @@ const I18N = {
     nearby_inline_importance:   'Min. importance',
 
     /* ── Round-trip Planner ── */
-    tab_roundtrip_text:        'Trip (Out + Return)',
-    rt_title:                  'Complete Trip',
+    tab_roundtrip_text:        'Round trip',
+    rt_title:                  'Round-trip journey',
     rt_subtitle:               'Search outbound and return from different airports',
     rt_section_outbound:       '✈ Outbound flight',
     rt_section_return:         '↩ Return flight',
@@ -910,8 +913,8 @@ const I18N = {
     weekdays_plural:           ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'],
 
     /* ── Direct flights from home (feature #14) ── */
-    tab_direct_text:           'Direct',
-    direct_title:              '🎯 Direct Flights',
+    tab_direct_text:           'Direct only',
+    direct_title:              '🎯 Non-stop flights from your origin',
     direct_subtitle:           'All destinations reachable nonstop from your home airport',
     direct_label_origin:       'Origin airport',
     direct_btn_search:         '🎯 Show direct destinations',
@@ -972,7 +975,7 @@ const I18N = {
 
     /* ── #13 Surprise me ── */
     tab_surprise_text:         'Surprise',
-    surprise_title:            '🎲 Surprise Me',
+    surprise_title:            '🎲 Surprise me with a random destination',
     surprise_subtitle:         'Not sure where to go? We\'ll suggest a random destination',
     surprise_label_origin:     'Origin airport',
     surprise_label_budget:     'Max budget (optional)',
@@ -999,12 +1002,15 @@ const I18N = {
     share_invalid:             'Invalid share link.',
 
     /* ── #1 Price heatmap ── */
-    tab_heatmap_text:          'Heatmap',
-    heatmap_title:             '🗓️ Price heatmap',
-    heatmap_subtitle:          'See the minimum price per day for a route across a month',
+    tab_heatmap_text:          'Price calendar',
+    heatmap_title:             '🗓️ Price calendar by day',
+    heatmap_subtitle:          'See the minimum price per day for a route across a range of months',
     heatmap_label_month:       'Month',
     heatmap_label_year:        'Year',
-    heatmap_btn:               '🗓️ Generate heatmap',
+    heatmap_label_from:        'From (month)',
+    heatmap_label_to:          'To (month)',
+    heatmap_alert_range:       'The end month cannot be earlier than the start month.',
+    heatmap_btn:               '🗓️ Generate calendar',
     heatmap_loading:           'Fetching prices for the whole month…',
     heatmap_no_data:           'No flights found for that month.',
     heatmap_legend_cheap:      'Cheaper',
@@ -1034,8 +1040,8 @@ const I18N = {
     routemap_legend_ret:       '← Return',
 
     /* ── #21 Multi-city ── */
-    tab_multicity_text:        'Multi-city',
-    multicity_title:           '🛫 Multi-city Trip',
+    tab_multicity_text:        'Multiple stops',
+    multicity_title:           '🛫 Trip across multiple chained destinations',
     multicity_subtitle:        'Plan a trip with multiple stops (open-jaw)',
     multicity_leg:             n => `Leg ${n}`,
     multicity_leg_from:        'From',
@@ -1043,7 +1049,7 @@ const I18N = {
     multicity_leg_dates:       'Dates',
     multicity_leg_remove:      'Remove leg',
     multicity_btn_add_leg:     '+ Add leg',
-    multicity_btn_search:      '🛫 Search multi-city trip',
+    multicity_btn_search:      '🛫 Search trip with multiple destinations',
     multicity_btn_searching:   leg => `Searching leg ${leg}…`,
     multicity_min_legs:        'You need at least 2 legs.',
     multicity_max_legs:        'Maximum 6 legs.',
@@ -1102,8 +1108,8 @@ const I18N = {
     multicity_pareto_dot_tooltip: 'Pareto-optimal: no combination is better on both axes',
     multicity_combo_pareto_label: '★ Pareto',
 
-    tab_cheap_text:           'Cheap',
-    cheap_title:              '💸 Cheap Flights',
+    tab_cheap_text:           'Cheap destinations',
+    cheap_title:              '💸 The cheapest destinations from your origin',
     cheap_subtitle:           'The cheapest flights per destination, at a glance',
     cheap_btn_search:         '💸 Find cheap flights',
     cheap_top_n_label:        'Flights per destination',
@@ -1127,8 +1133,8 @@ const I18N = {
     cheap_view_by_origin:     'By origin',
 
     /* ── Express trip ── */
-    tab_express_text:       'Express Trip',
-    express_title:          'Express Trip',
+    tab_express_text:       'Quick getaway',
+    express_title:          'Quick getaway (out & back same day)',
     express_subtitle:       'Morning outbound (04:00–11:59) · Same-day return afternoon/evening',
     btn_express_search:     '⚡ Search express trip',
     express_searching_out:  'Searching outbound flights…',

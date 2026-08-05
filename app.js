@@ -1191,28 +1191,32 @@ function applyShowAllAirports(val) {
   document.dispatchEvent(new CustomEvent('showAllAirportsChanged', { detail: val }));
 }
 
-const showAllAirportsCheck = document.getElementById('showAllAirportsCheck');
-if (showAllAirportsCheck) {
-  showAllAirportsCheck.checked = showAllAirports;
-  showAllAirportsCheck.addEventListener('change', () => {
-    applyShowAllAirports(showAllAirportsCheck.checked);
-    ['exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.checked = showAllAirports;
-    });
+/* Todos los checkboxes de "Ver todos los aeropuertos" (uno por tab).
+   Se mantienen sincronizados entre sí a través del flag global. */
+const SHOW_ALL_CHECKBOX_IDS = [
+  'showAllAirportsCheck',      // Sólo ida
+  'exShowAllAirportsCheck',    // Escapada exprés
+  'chShowAllAirportsCheck',    // Destinos baratos
+  'rtShowAllAirportsCheck',    // Ida y vuelta
+  'dirShowAllAirportsCheck',   // Sólo directos
+  'hmShowAllAirportsCheck',    // Calendario de precios
+  'mcShowAllAirportsCheck',    // Varios destinos
+  'surShowAllAirportsCheck',   // Sorpréndeme
+];
+SHOW_ALL_CHECKBOX_IDS.forEach(id => {
+  const chk = document.getElementById(id);
+  if (!chk) return;
+  chk.checked = showAllAirports;
+  chk.addEventListener('change', () => applyShowAllAirports(chk.checked));
+});
+// Cuando el flag cambia (desde cualquier tab) → replica el estado en todos
+document.addEventListener('showAllAirportsChanged', (e) => {
+  const val = e?.detail ?? showAllAirports;
+  SHOW_ALL_CHECKBOX_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.checked !== val) el.checked = val;
   });
-}
-const exShowAllAirportsCheck = document.getElementById('exShowAllAirportsCheck');
-if (exShowAllAirportsCheck) {
-  exShowAllAirportsCheck.checked = showAllAirports;
-  exShowAllAirportsCheck.addEventListener('change', () => {
-    applyShowAllAirports(exShowAllAirportsCheck.checked);
-    ['showAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.checked = showAllAirports;
-    });
-  });
-}
+});
 
 // Keep tooltip text in sync with language changes
 onLangChange(() => {

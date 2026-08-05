@@ -44,8 +44,7 @@
 
   /* ── Module state — persisted between renders so the toolbar
         toggles can re-render without losing the data ── */
-  let hmStateYear     = null;
-  let hmStateMonth    = null;
+  let hmStateMonths   = null;   // array of {year, month} in the range
   let hmStateRoutes   = null;   // sorted array of route objects
   let hmStateFrom     = [];
   let hmStateTo       = [];
@@ -53,27 +52,60 @@
   let hmStateDiffOn   = false;  // diff card on/off (requires routes.length === 2)
   let hmStateBudget   = null;   // number or null
 
-  /* ── Month/Year selectors ── */
-  const monthSel = document.getElementById('hmMonth');
-  const yearSel  = document.getElementById('hmYear');
-  const now = new Date();
-  const months = [
-    'Ene/Jan','Feb','Mar/Mar','Abr/Apr','May/May','Jun/Jun',
-    'Jul/Jul','Ago/Aug','Sep/Sep','Oct/Oct','Nov/Nov','Dic/Dec',
-  ];
-  for (let m = 0; m < 12; m++) {
-    const o = document.createElement('option');
-    o.value = String(m);
-    o.textContent = months[m];
-    if (m === now.getMonth()) o.selected = true;
-    monthSel.appendChild(o);
+  /* ── Month/Year selectors (rango: mes desde / mes hasta) ── */
+  const monthSelFrom = document.getElementById('hmMonthFrom');
+  const monthSelTo   = document.getElementById('hmMonthTo');
+  const yearSelFrom  = document.getElementById('hmYearFrom');
+  const yearSelTo    = document.getElementById('hmYearTo');
+  // Blindaje: si el HTML servido no tiene los IDs nuevos (caché rara, versión
+  // vieja de index.html), no revientes la IIFE — los selectores de aeropuerto
+  // ya están cableados arriba y deben seguir funcionando.
+  if (!monthSelFrom || !monthSelTo || !yearSelFrom || !yearSelTo) {
+    console.warn('[heatmap] Month/year selectors missing; range picker disabled. Refresh with cache clear.');
+    return;
   }
-  for (let y = now.getFullYear(); y <= now.getFullYear() + 2; y++) {
-    const o = document.createElement('option');
-    o.value = String(y);
-    o.textContent = String(y);
-    if (y === now.getFullYear()) o.selected = true;
-    yearSel.appendChild(o);
+  const now = new Date();
+  function _monthName(m) {
+    const locale = t('locale_tag') || 'es';
+    const name = new Date(2000, m, 1).toLocaleString(locale, { month: 'long' });
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+  function _fillMonthSel(sel, defMonth) {
+    for (let m = 0; m < 12; m++) {
+      const o = document.createElement('option');
+      o.value = String(m);
+      o.textContent = _monthName(m);
+      if (m === defMonth) o.selected = true;
+      sel.appendChild(o);
+    }
+  }
+  function _fillYearSel(sel, defYear) {
+    for (let y = now.getFullYear(); y <= now.getFullYear() + 2; y++) {
+      const o = document.createElement('option');
+      o.value = String(y);
+      o.textContent = String(y);
+      if (y === defYear) o.selected = true;
+      sel.appendChild(o);
+    }
+  }
+  _fillMonthSel(monthSelFrom, now.getMonth());
+  _fillMonthSel(monthSelTo,   now.getMonth());
+  _fillYearSel(yearSelFrom,   now.getFullYear());
+  _fillYearSel(yearSelTo,     now.getFullYear());
+
+  /* Utilidad: lista {year,month} en el rango [from, to] inclusive.
+     Si el rango es inválido (to < from), devuelve sólo el from. */
+  function _monthRange(yFrom, mFrom, yTo, mTo) {
+    const out = [];
+    let y = yFrom, m = mFrom;
+    let steps = 0;                  // guard: máx 36 meses (cubre currentYear → +2 años entero)
+    while ((y < yTo || (y === yTo && m <= mTo)) && steps < 36) {
+      out.push({ year: y, month: m });
+      m++;
+      if (m > 11) { m = 0; y++; }
+      steps++;
+    }
+    return out.length ? out : [{ year: yFrom, month: mFrom }];
   }
 
   /* ── Submit ── */
@@ -85,10 +117,18 @@
       alert(t('heatmap_alert_route'));
       return;
     }
-    const month = parseInt(monthSel.value);
-    const year  = parseInt(yearSel.value);
-    const firstDay = new Date(year, month, 1);
-    const lastDay  = new Date(year, month + 1, 0);
+    const monthFrom = parseInt(monthSelFrom.value);
+    const yearFrom  = parseInt(yearSelFrom.value);
+    const monthTo   = parseInt(monthSelTo.value);
+    const yearTo    = parseInt(yearSelTo.value);
+    // Rango inclusivo. Si el usuario invierte "hasta" antes que "desde", avisamos.
+    if (yearTo < yearFrom || (yearTo === yearFrom && monthTo < monthFrom)) {
+      alert(t('heatmap_alert_range') || 'El mes final no puede ser anterior al mes de inicio.');
+      return;
+    }
+    const monthsRange = _monthRange(yearFrom, monthFrom, yearTo, monthTo);
+    const firstDay = new Date(yearFrom, monthFrom, 1);
+    const lastDay  = new Date(yearTo, monthTo + 1, 0);
     const fmt = d => `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
 
     const submitBtn = document.getElementById('hmSubmitBtn');
@@ -148,8 +188,7 @@
       }
 
       /* Persist state for toolbar interactions */
-      hmStateYear   = year;
-      hmStateMonth  = month;
+      hmStateMonths = monthsRange;
       hmStateFrom   = from;
       hmStateTo     = to;
       hmStateRoutes = [...byRoute.values()]
@@ -158,8 +197,8 @@
           overallMin: Math.min(...[...r.byDay.values()].map(d => d.min)),
         }))
         .sort((a, b) => a.overallMin - b.overallMin);
-      /* Diff defaults ON when there are exactly 2 routes */
-      hmStateDiffOn = hmStateRoutes.length === 2;
+      /* Diff card OFF por defecto — el usuario la activa desde la toolbar. */
+      hmStateDiffOn = false;
 
       _renderResults();
     } catch (err) {
@@ -178,12 +217,20 @@
      RENDER
   ═══════════════════════════════════════════ */
   function _renderResults() {
-    if (!hmStateRoutes) return;
+    if (!hmStateRoutes || !hmStateMonths?.length) return;
     const resultsEl = document.getElementById('hmResults');
 
-    const firstDay   = new Date(hmStateYear, hmStateMonth, 1);
-    const monthLabel = firstDay.toLocaleString(t('locale_tag') || 'es', { month: 'long', year: 'numeric' });
-    const monthCap   = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+    const locale = t('locale_tag') || 'es';
+    const first  = hmStateMonths[0];
+    const last   = hmStateMonths[hmStateMonths.length - 1];
+    const firstLabel = new Date(first.year, first.month, 1)
+      .toLocaleString(locale, { month: 'long', year: 'numeric' });
+    const lastLabel  = new Date(last.year, last.month, 1)
+      .toLocaleString(locale, { month: 'long', year: 'numeric' });
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const rangeCap = hmStateMonths.length === 1
+      ? cap(firstLabel)
+      : `${cap(firstLabel)} → ${cap(lastLabel)}`;
 
     /* Global lo/hi across ALL routes (used when scale is shared) */
     let globalLo = Infinity, globalHi = -Infinity;
@@ -199,7 +246,7 @@
     const headerHtml = `
       <div class="hm-results-header">
         <div class="hm-results-header-row">
-          <h3 class="hm-month-title">${escapeHtml(monthCap)}</h3>
+          <h3 class="hm-month-title">${escapeHtml(rangeCap)}</h3>
           <button type="button" class="hm-share-btn" id="hmShareBtn" title="${t('share_btn_title')}">${t('share_btn')}</button>
         </div>
         ${hmStateRoutes.length > 1
@@ -231,30 +278,34 @@
         </div>
       </div>`;
 
-    const cardsHtml = hmStateRoutes.map(r =>
-      _buildCalendarCardHtml(hmStateYear, hmStateMonth, r.byDay, r.ori, r.dst,
-        hmStateScaleAbs ? globalLo : null,
-        hmStateScaleAbs ? globalHi : null,
-        hmStateBudget)
-    ).join('');
+    /* Un card por (mes × ruta). Si hay 2 rutas y el usuario tiene el diff
+       activado, se añade también un card diff por mes. */
+    const cardsHtml = hmStateMonths.map(({year, month}) => {
+      const routeCards = hmStateRoutes.map(r =>
+        _buildCalendarCardHtml(year, month, r.byDay, r.ori, r.dst,
+          hmStateScaleAbs ? globalLo : null,
+          hmStateScaleAbs ? globalHi : null,
+          hmStateBudget)
+      ).join('');
+      const diffCard = (canDiff && hmStateDiffOn)
+        ? _buildDiffCardHtml(year, month, hmStateRoutes[0], hmStateRoutes[1])
+        : '';
+      return routeCards + diffCard;
+    }).join('');
 
-    let diffHtml = '';
-    if (canDiff && hmStateDiffOn) {
-      diffHtml = _buildDiffCardHtml(hmStateYear, hmStateMonth,
-        hmStateRoutes[0], hmStateRoutes[1]);
-    }
-
-    resultsEl.innerHTML = headerHtml + `<div class="hm-cards-grid">${cardsHtml}${diffHtml}</div>`;
+    resultsEl.innerHTML = headerHtml + `<div class="hm-cards-grid">${cardsHtml}</div>`;
 
     /* Share button */
     document.getElementById('hmShareBtn')?.addEventListener('click', async () => {
       if (typeof window.copyShareUrl !== 'function') return;
       const params = {
-        kind:  'heatmap',
-        from:  hmStateFrom,
-        to:    hmStateTo,
-        month: parseInt(document.getElementById('hmMonth').value),
-        year:  parseInt(document.getElementById('hmYear').value),
+        kind:      'heatmap',
+        from:      hmStateFrom,
+        to:        hmStateTo,
+        monthFrom: hmStateMonths[0].month,
+        yearFrom:  hmStateMonths[0].year,
+        monthTo:   hmStateMonths[hmStateMonths.length - 1].month,
+        yearTo:    hmStateMonths[hmStateMonths.length - 1].year,
       };
       const ok = await window.copyShareUrl(params);
       const btn = document.getElementById('hmShareBtn');
@@ -393,10 +444,12 @@
       ? `<span class="hm-scale-hint hm-scale-hint-abs">${t('heatmap_tb_scale_abs_hint')}</span>`
       : '';
 
+    const monthTag = new Date(year, month, 1)
+      .toLocaleString(t('locale_tag') || 'es', { month: 'short', year: 'numeric' });
     return `
       <div class="hm-card" data-ori="${escapeHtml(oriIata)}" data-dst="${escapeHtml(dstIata)}">
         <div class="hm-card-head">
-          <span class="hm-route">${escapeHtml(oriIata)} → ${escapeHtml(dstIata)}</span>
+          <span class="hm-route">${escapeHtml(oriIata)} → ${escapeHtml(dstIata)} <span class="hm-card-month">· ${escapeHtml(monthTag)}</span></span>
           ${scaleHint}
         </div>
         <div class="hm-grid">
@@ -496,10 +549,12 @@
 
     const routeA_lbl = `${routeA.ori}→${routeA.dst}`;
     const routeB_lbl = `${routeB.ori}→${routeB.dst}`;
+    const monthTag = new Date(year, month, 1)
+      .toLocaleString(t('locale_tag') || 'es', { month: 'short', year: 'numeric' });
     return `
       <div class="hm-card hm-card-diff">
         <div class="hm-card-head">
-          <span class="hm-route">${t('heatmap_diff_title')}</span>
+          <span class="hm-route">${t('heatmap_diff_title')} <span class="hm-card-month">· ${escapeHtml(monthTag)}</span></span>
           <span class="hm-scale-hint">${escapeHtml(routeB_lbl)} − ${escapeHtml(routeA_lbl)}</span>
         </div>
         <div class="hm-grid">

@@ -52,7 +52,7 @@ if (chShowAllAirportsCheck) {
   chShowAllAirportsCheck.checked = showAllAirports;
   chShowAllAirportsCheck.addEventListener('change', () => {
     applyShowAllAirports(chShowAllAirportsCheck.checked);
-    ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck'].forEach(id => {
+    ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'dirShowAllAirportsCheck', 'hmShowAllAirportsCheck', 'mcShowAllAirportsCheck', 'surShowAllAirportsCheck'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.checked = showAllAirports;
     });

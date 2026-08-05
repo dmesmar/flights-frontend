@@ -110,9 +110,13 @@
 
   window.copyShareUrl = async function copyShareUrl(params) {
     const url = await window.buildShareUrl(params);
+    // Aviso si estamos en localhost: la URL sólo funciona en esta máquina.
+    const host = location.hostname;
+    const isLocalHost = host === 'localhost' || host === '127.0.0.1' || host === '';
+    let ok = false;
     try {
       await navigator.clipboard.writeText(url);
-      return true;
+      ok = true;
     } catch {
       const ta = document.createElement('textarea');
       ta.value = url;
@@ -120,12 +124,23 @@
       ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
-      let ok = false;
       try { ok = document.execCommand('copy'); } catch {}
       document.body.removeChild(ta);
-      return ok;
     }
+    if (ok && isLocalHost) {
+      _showToast('⚠ El enlace copiado sólo abre en este ordenador (localhost). Para compartir fuera necesitas exponer la app (ngrok / IP local).');
+    }
+    return ok;
   };
+
+  function _showToast(msg) {
+    const el = document.createElement('div');
+    el.className = 'share-loaded-notice';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add('fade-out'), 4000);
+    setTimeout(() => el.remove(), 5000);
+  }
 
   window.parseShareHash = async function parseShareHash() {
     /* Allow '.' inside the payload to support the 'c.' compression prefix */
@@ -200,12 +215,21 @@
         subtitle = (p.dateIni && p.dateFin) ? `${p.dateIni} → ${p.dateFin}` : '';
         details = 'Más baratos';
         break;
-      case 'heatmap':
+      case 'heatmap': {
         title = `${fmtAirports(p.from)} → ${fmtAirports(p.to)}`;
-        subtitle = (p.month != null && p.year != null)
-          ? `${String(p.month + 1).padStart(2, '0')}/${p.year}` : '';
-        details = 'Heatmap mensual';
+        // Nuevo formato: monthFrom/yearFrom + monthTo/yearTo. Backwards-compat: month/year.
+        const mF = p.monthFrom != null ? p.monthFrom : p.month;
+        const yF = p.yearFrom  != null ? p.yearFrom  : p.year;
+        const mT = p.monthTo   != null ? p.monthTo   : p.month;
+        const yT = p.yearTo    != null ? p.yearTo    : p.year;
+        if (mF != null && yF != null) {
+          const from = `${String(mF + 1).padStart(2, '0')}/${yF}`;
+          const to   = `${String(mT + 1).padStart(2, '0')}/${yT}`;
+          subtitle = (from === to) ? from : `${from} → ${to}`;
+        } else subtitle = '';
+        details = 'Calendario de precios';
         break;
+      }
       case 'multicity':
       case 'multicity-v2': {
         const seq = [p.origin, ...(p.destinations || [])]
@@ -272,16 +296,34 @@
     document.title = `${summary.title} · ${summary.details}`;
   }
 
-  /* ── On page load: if URL has #share=…, restore the search. ── */
+  /* ── On page load / hashchange: if URL has #share=…, restore the search. ── */
   async function _applyShareHashOnLoad() {
     const params = await window.parseShareHash();
     if (!params || !params.kind) return;
 
-    /* Update OG preview asap (independent of selector readiness) */
     _injectOgPreview(params);
 
-    /* Wait for selectors to be ready before applying form values */
-    setTimeout(() => _applyParams(params), 250);
+    // Espera activa: los selectores se cablean después de app.js. En vez de
+    // asumir un delay fijo, pollea hasta ~2s. Falla silencioso si nunca están
+    // listos (mejor no aplicar que aplicar mal).
+    _waitForReady(params, 0);
+  }
+
+  function _waitForReady(params, tries) {
+    const needsMain      = params.kind === 'main'      && typeof selectorFrom  === 'undefined';
+    const needsCheap     = params.kind === 'cheap'     && typeof chSelectorFrom === 'undefined';
+    const needsExpress   = params.kind === 'express'   && typeof exSelectorFrom === 'undefined';
+    const needsHeatmap   = params.kind === 'heatmap'   && typeof hmSelectorFrom === 'undefined';
+    const needsSurprise  = params.kind === 'surprise'  && typeof surSelectorFrom === 'undefined';
+    const needsRoundtrip = params.kind === 'roundtrip' && typeof window.rtApplyShared !== 'function';
+    const needsMulticity = (params.kind === 'multicity' || params.kind === 'multicity-v2')
+                           && typeof window.mcApplyShared !== 'function';
+    const notReady = needsMain || needsCheap || needsExpress || needsHeatmap
+                     || needsSurprise || needsRoundtrip || needsMulticity;
+    if (notReady && tries < 40) {           // 40 × 50 ms = 2 s máximo
+      return setTimeout(() => _waitForReady(params, tries + 1), 50);
+    }
+    _applyParams(params);
   }
 
   function _applyParams(p) {
@@ -330,13 +372,20 @@
         document.querySelector('[data-tab="cheap"]')?.click();
         break;
 
-      case 'heatmap':
+      case 'heatmap': {
         if (typeof hmSelectorFrom !== 'undefined' && p.from) hmSelectorFrom.setSelected(p.from);
         if (typeof hmSelectorTo   !== 'undefined' && p.to)   hmSelectorTo.setSelected(p.to);
-        if (p.month != null) document.getElementById('hmMonth').value = p.month;
-        if (p.year  != null) document.getElementById('hmYear').value  = p.year;
+        const mF = p.monthFrom != null ? p.monthFrom : p.month;
+        const yF = p.yearFrom  != null ? p.yearFrom  : p.year;
+        const mT = p.monthTo   != null ? p.monthTo   : p.month;
+        const yT = p.yearTo    != null ? p.yearTo    : p.year;
+        if (mF != null) document.getElementById('hmMonthFrom').value = mF;
+        if (yF != null) document.getElementById('hmYearFrom').value  = yF;
+        if (mT != null) document.getElementById('hmMonthTo').value   = mT;
+        if (yT != null) document.getElementById('hmYearTo').value    = yT;
         document.querySelector('[data-tab="heatmap"]')?.click();
         break;
+      }
 
       case 'multicity':       /* legacy v1 payload */
       case 'multicity-v2':    /* new payload shape */
@@ -366,4 +415,7 @@
   } else {
     _applyShareHashOnLoad();
   }
+  // Si el usuario pega un link con #share=... en la misma pestaña, o navega
+  // con back/forward a un hash anterior, también restauramos.
+  window.addEventListener('hashchange', _applyShareHashOnLoad);
 })();

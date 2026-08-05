@@ -29,7 +29,7 @@
     dirShowAllChk.checked = showAllAirports;
     dirShowAllChk.addEventListener('change', () => {
       applyShowAllAirports(dirShowAllChk.checked);
-      ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck']
+      ['showAllAirportsCheck', 'exShowAllAirportsCheck', 'chShowAllAirportsCheck', 'rtShowAllAirportsCheck', 'hmShowAllAirportsCheck', 'mcShowAllAirportsCheck', 'surShowAllAirportsCheck']
         .forEach(id => {
           const el = document.getElementById(id);
           if (el) el.checked = showAllAirports;
