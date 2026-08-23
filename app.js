@@ -1128,6 +1128,17 @@ onLangChange(() => {
   });
 });
 
+/* Flex ±N days: enable/disable numeric input from checkbox, sync both tabs */
+['flexCheck', 'chFlexCheck'].forEach(id => {
+  const chk = document.getElementById(id);
+  if (!chk) return;
+  const inputId = id === 'flexCheck' ? 'flexDays' : 'chFlexDays';
+  const inp = document.getElementById(inputId);
+  const sync = () => { if (inp) inp.disabled = !chk.checked; };
+  sync();
+  chk.addEventListener('change', sync);
+});
+
 const simpleSearchCheck = document.getElementById('simpleSearchCheck');
 if (simpleSearchCheck) {
   simpleSearchCheck.checked = simpleSearchMode;
@@ -1760,7 +1771,7 @@ async function executeSearchParallel(payloads, container, controller, {
       const pct    = container.querySelector('#progressPct');
       const status = container.querySelector('#progressStatus');
       const eta    = container.querySelector('#spinnerEta');
-      if (fill)   fill.style.width   = `${Math.min(Math.max(avg, 0), 100)}%`;
+      if (fill)   fill.style.transform = `scaleX(${Math.min(Math.max(avg, 0), 100) / 100})`;
       if (pct)    pct.textContent    = `${Math.round(avg)}%`;
       const msg = results.find(r => r?.message)?.message;
       if (status && msg) status.textContent = msg;
@@ -1830,7 +1841,7 @@ async function executeSearch(payload, container, controller, {
       const pct    = container.querySelector('#progressPct');
       const status = container.querySelector('#progressStatus');
       const eta    = container.querySelector('#spinnerEta');
-      if (fill)   fill.style.width   = `${Math.min(Math.max(displayed, 0), 100)}%`;
+      if (fill)   fill.style.transform = `scaleX(${Math.min(Math.max(displayed, 0), 100) / 100})`;
       if (pct)    pct.textContent    = `${Math.round(displayed)}%`;
       if (status && message) status.textContent = message;
       if (showEta && eta && displayed > 5) {
@@ -1887,9 +1898,12 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
   }
 
   const maxResults = parseInt(document.getElementById('maxResults')?.value || '3');
+  const flexOn  = document.getElementById('flexCheck')?.checked;
+  const flexN   = flexOn ? parseInt(document.getElementById('flexDays')?.value || '3') : 0;
+  const flex    = computeFlexRange(fechaIni, fechaFin, flexN);
   const basePayload = {
-    fecha_ini:  fechaIni.split('-').reverse().join('-'),
-    fecha_fin:  fechaFin.split('-').reverse().join('-'),
+    fecha_ini:  flex.apiIni,
+    fecha_fin:  flex.apiFin,
     airport_to: to,
     max_stops:  parseInt(stops),
     max_results: maxResults,
@@ -1917,6 +1931,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
       showTimer: true,
       showEta:   true,
     });
+    if (flex.markExtras) flex.markExtras(data.vuelos);
     lastResults = data;
 
     // Capture selected days and pre-filter display data
@@ -1936,6 +1951,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     bindSaveBtns(resultsGrid, displayData.vuelos);
     bindReturnBtns(resultsGrid, displayData.vuelos);
     bindRouteTabs(resultsGrid, applyFiltersAndSort);
+    bindMultiOriginPanel(resultsGrid);
     startPriceResolution(resultsGrid);
     // Remove any stale return section from previous search
     document.getElementById('returnSection')?.remove();
@@ -2004,6 +2020,7 @@ onLangChange(() => {
       bindSaveBtns(rg, lastResults.vuelos);
       bindReturnBtns(rg, lastResults.vuelos);
       bindRouteTabs(rg, applyFiltersAndSort);
+      bindMultiOriginPanel(rg);
 
       // Re-append return section if it was present
       if (returnSection) resultsEl.appendChild(returnSection);

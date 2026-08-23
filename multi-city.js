@@ -83,7 +83,7 @@
         <div class="airport-selector mc-dest-selector">
           <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
             <div class="airport-trigger-tokens"></div>
-            <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" autocomplete="off" spellcheck="false" />
+            <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" autocomplete="off" spellcheck="false" data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
             <span class="airport-trigger-arrow">&#x25BE;</span>
           </div>
           <div class="airport-dropdown" role="listbox"><div class="dropdown-list"></div></div>

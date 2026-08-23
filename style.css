@@ -1,4 +1,67 @@
-/* ── Theme tokens ── */
+/* ── Theme tokens ──
+   Fallback strategy: bare :root defines the LIGHT palette as a safe
+   default, then a system-preference block overrides to DARK for users
+   whose OS is set to dark. Explicit :root[data-theme="…"] always wins
+   over both, so the in-app toggle keeps full control. */
+:root {
+  --bg:               #faf7f2;
+  --surface:          #ffffff;
+  --surface-2:        #f3ede4;
+  --border:           #e2d9cc;
+  --text:             #2d2016;
+  --text-muted:       #7a6a56;
+  --accent:           #e8703a;
+  --accent-hover:     #d45e28;
+  --accent-2:         #2c9b8a;
+  --tag-bg:           #fdefd8;
+  --tag-text:         #b84d10;
+  --tag-border:       #f5c490;
+  --shadow:           0 2px 16px rgba(80,40,10,0.09), 0 8px 32px rgba(80,40,10,0.05);
+  --shadow-card:      0 1px 4px rgba(80,40,10,0.07), 0 6px 24px rgba(80,40,10,0.07);
+  --dropdown-bg:      #ffffff;
+  --dropdown-hover:   #fdf5ec;
+  --toggle-icon:      "☀️";
+  --input-bg:         #fdfaf6;
+  --radius-card:      20px;
+  --radius-input:     12px;
+  --radius-btn:       12px;
+  --log-bg:           #fdf8f3;
+  --log-toolbar-bg:   #f3ede4;
+  --log-ts:           #b8a898;
+  --log-msg:          #6a5a48;
+  --log-hover:        rgba(80,40,10,0.04);
+  --hero-from:        #fff4e8;
+  --hero-to:          #fdebd0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:               #17120d;
+    --surface:          #221a12;
+    --surface-2:        #2e2218;
+    --border:           #3d2f20;
+    --text:             #f0e8dc;
+    --text-muted:       #9c8878;
+    --accent:           #f4844a;
+    --accent-hover:     #f9a070;
+    --accent-2:         #3dbaa8;
+    --tag-bg:           #3d2010;
+    --tag-text:         #f4a46e;
+    --tag-border:       #6b3820;
+    --shadow:           0 2px 16px rgba(0,0,0,0.45), 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-card:      0 2px 8px rgba(0,0,0,0.4), 0 8px 28px rgba(0,0,0,0.3);
+    --dropdown-bg:      #221a12;
+    --dropdown-hover:   #2e2218;
+    --toggle-icon:      "🌙";
+    --input-bg:         #2e2218;
+    --log-bg:           #110e09;
+    --log-toolbar-bg:   #1a1209;
+    --log-ts:           #4a3828;
+    --log-msg:          #a09080;
+    --log-hover:        rgba(255,255,255,0.03);
+    --hero-from:        #1f1609;
+    --hero-to:          #2a1e10;
+  }
+}
 :root[data-theme="light"] {
   --bg:               #faf7f2;
   --surface:          #ffffff;
@@ -81,7 +144,10 @@ header {
   padding: 0.85rem 2rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 0 var(--border), var(--shadow);
+  box-shadow:
+    inset 0 -2px 0 0 color-mix(in srgb, var(--accent) 55%, transparent),
+    0 1px 0 var(--border),
+    var(--shadow);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -91,10 +157,10 @@ header {
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
   color: var(--accent);
 }
 
@@ -1103,10 +1169,12 @@ select:focus {
 }
 .progress-fill {
   height: 100%;
-  width: 0%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
   background: var(--accent);
-  border-radius: 999px;
-  transition: width 0.5s ease;
+  transition: transform 0.5s ease;
+  will-change: transform;
 }
 .progress-pct {
   font-size: 0.78rem;
@@ -1473,6 +1541,105 @@ select:focus {
 .route-tab.tab-excluded .route-tab-count { background: rgba(231,76,60,0.12); color: #e74c3c; }
 .route-tab.tab-excluded:hover { background: #fdecea; }
 
+/* Min price badge inside route tabs (multi-origen visibility aid) */
+.route-tab-min {
+  background: rgba(46,204,113,0.15);
+  color: #16a34a;
+  border-radius: 999px;
+  padding: 0 0.5em;
+  font-size: 0.72em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.route-tab.active .route-tab-min {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+/* Multi-origen comparativa panel */
+.multi-origin-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+.multi-origin-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.55rem;
+}
+.multi-origin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.55rem;
+}
+.multi-origin-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.multi-origin-cell:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.multi-origin-cell .mo-iata {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.multi-origin-cell .mo-city {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.multi-origin-cell .mo-price {
+  margin-top: 0.15rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-1);
+}
+.multi-origin-cell-winner {
+  border-color: #16a34a;
+  background: linear-gradient(180deg, rgba(22,163,74,0.08), rgba(22,163,74,0.02));
+}
+.multi-origin-cell-winner .mo-price { color: #16a34a; }
+.mo-winner-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+/* Flash animation for scrolled-to route section */
+.route-section-flash {
+  animation: routeFlash 1.4s ease-out;
+}
+@keyframes routeFlash {
+  0%   { box-shadow: 0 0 0 4px rgba(232,112,58,0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(232,112,58,0); }
+}
+
 /* Flat mode: merge all cards into a single grid, hide route headers */
 .results-flat .route-header { display: none; }
 .results-flat .route-section { margin-bottom: 0; }
@@ -1497,20 +1664,33 @@ select:focus {
 .route-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.6rem;
+  gap: 0.85rem;
+  margin-bottom: 1.1rem;
+  padding: 0.15rem 0 0.7rem;
   border-bottom: 2px solid var(--border);
+  position: relative;
+}
+.route-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 48px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 999px;
 }
 
 .route-header-left { flex: 1; min-width: 0; }
 
 .route-header-main {
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.35rem;
+  font-weight: 900;
   color: var(--text);
   display: block;
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.15rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .route-header-sub {
@@ -1559,7 +1739,14 @@ select:focus {
 
 .flight-card.card-cheapest {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(232,112,58,0.18), var(--shadow-card);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 12px 40px color-mix(in srgb, var(--accent) 24%, transparent),
+    var(--shadow-card);
+}
+.flight-card.card-cheapest .card-price {
+  font-size: 1.75rem;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 .cheapest-badge {
@@ -1579,6 +1766,62 @@ select:focus {
   z-index: 1;
   box-shadow: 0 2px 6px rgba(232,112,58,0.3);
 }
+
+/* Flex ±N: cards that fall on days outside the user's original range */
+.flight-card.card-flex-extra {
+  border-style: dashed;
+  opacity: 0.9;
+}
+.flex-extra-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  z-index: 1;
+}
+.card-cheapest .flex-extra-badge {
+  background: rgba(255,255,255,0.9);
+  color: var(--accent);
+  border-color: rgba(255,255,255,0.9);
+}
+
+/* Flex range row (in forms) */
+.flex-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+.flex-range-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  user-select: none;
+}
+.flex-range-input {
+  width: 3.2rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-1);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.flex-range-input:disabled { opacity: 0.45; cursor: not-allowed; }
+.flex-range-suffix { color: var(--text-2); }
 
 /* Card top bar */
 .card-top {
@@ -1644,10 +1887,12 @@ select:focus {
 .card-endpoint.arr { align-items: flex-end; }
 
 .endpoint-time {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: var(--text);
   line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .endpoint-iata {
@@ -1719,9 +1964,12 @@ select:focus {
 }
 
 .card-price {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.55rem;
+  font-weight: 900;
   color: var(--accent);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .card-footer-right {
@@ -1744,13 +1992,9 @@ select:focus {
 }
 
 .badge-direct {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-:root[data-theme="dark"] .badge-direct {
-  background: #064e3b;
-  color: #6ee7b7;
+  background: color-mix(in srgb, var(--accent-2) 15%, transparent);
+  color: var(--accent-2);
+  border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
 }
 
 .badge-stops {
@@ -2143,10 +2387,21 @@ select:focus {
   font-size: 0.83rem;
   color: var(--text-muted);
   margin: -0.75rem 0 1.5rem;
-  padding: 0.6rem 0.85rem;
+  padding: 0.6rem 0.85rem 0.6rem 1.35rem;
   background: var(--surface-2);
   border-radius: 10px;
-  border-left: 3px solid var(--accent);
+  position: relative;
+}
+.express-subtitle::before {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translateY(-50%);
 }
 
 .express-dest-section {
@@ -2172,10 +2427,11 @@ select:focus {
   align-items: baseline;
   gap: 1rem;
   padding: 0.65rem 1rem;
-  background: var(--surface-2);
+  background: linear-gradient(90deg,
+              color-mix(in srgb, var(--accent) 8%, transparent),
+              var(--surface-2) 45%);
   border-radius: 12px;
   margin-bottom: 1rem;
-  border-left: 3px solid var(--accent);
 }
 
 .express-day-label {
@@ -3175,7 +3431,7 @@ select:focus {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--text-secondary, #aaa);
+  color: var(--text-muted);
   user-select: none;
 }
 .simple-search-label input[type="checkbox"] {
@@ -4057,8 +4313,7 @@ select:focus {
   background: linear-gradient(90deg,
               color-mix(in srgb, var(--accent) 10%, transparent),
               transparent);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 6px 6px 0;
+  border-radius: 6px;
 }
 
 /* Spacer that fills the swap-btn slot in return row (no swap button needed) */
@@ -4188,7 +4443,7 @@ select:focus {
   padding: 0.35rem 0.7rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   user-select: none;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -4318,7 +4573,7 @@ select:focus {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.18rem 0.6rem;
   white-space: nowrap;
 }
@@ -4369,12 +4624,22 @@ select:focus {
 .rt-return-row:hover { background: var(--surface-2); }
 .rt-return-row-hidden { display: none; }
 .rt-return-best {
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-  border-left: 4px solid var(--accent);
-  padding-left: calc(1.1rem - 4px);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  padding-left: 1.9rem !important;
+}
+.rt-return-best::before {
+  content: "✦";
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 800;
 }
 .rt-return-best:hover {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 /* Column 1: when ─ date + stay */
@@ -4402,7 +4667,7 @@ select:focus {
   font-size: 0.72rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.1rem 0.55rem;
   color: var(--text-muted);
   white-space: nowrap;
@@ -4717,7 +4982,7 @@ select:focus {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   padding: 0.15rem 0.5rem;
-  border-radius: 99px;
+  border-radius: 999px;
   white-space: nowrap;
 }
 .rt-insight-headline {
@@ -4736,7 +5001,7 @@ select:focus {
   background: var(--accent);
   color: #fff;
   border: 1px solid var(--accent);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.4rem 0.95rem;
   font-size: 0.78rem;
   font-weight: 700;
@@ -4755,7 +5020,7 @@ select:focus {
   background: var(--accent);
   color: #fff;
   border: 1px solid var(--accent);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.4rem 0.95rem;
   font-size: 0.78rem;
   font-weight: 700;
@@ -4781,7 +5046,7 @@ select:focus {
   background: transparent;
   color: var(--text-muted);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.4rem 0.95rem;
   font-size: 0.78rem;
   font-weight: 600;
@@ -4818,7 +5083,7 @@ select:focus {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   padding: 0.35rem 0.85rem;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .dir-count {
   font-size: 0.85rem;
@@ -4878,7 +5143,7 @@ select:focus {
   background: var(--surface-2);
   border: 1px solid var(--border);
   padding: 0.1rem 0.45rem;
-  border-radius: 99px;
+  border-radius: 999px;
   letter-spacing: 0.05em;
 }
 .dir-card-meta {
@@ -4909,7 +5174,7 @@ select:focus {
   background: transparent;
   color: var(--text-muted);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 0.32rem 0.85rem;
   font-size: 0.78rem;
   font-weight: 700;
@@ -5064,7 +5329,7 @@ select:focus {
   padding: 0.4rem 0.75rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 0.82rem;
 }
 .stats-dest-chip-iata { font-weight: 800; color: var(--accent); }
@@ -5075,7 +5340,7 @@ select:focus {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.05rem 0.45rem;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 
 /* ═══════════════════════════════════════════
@@ -5091,7 +5356,7 @@ select:focus {
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  border-radius: 99px;
+  border-radius: 999px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.25);
   cursor: help;
   white-space: nowrap;
@@ -5472,7 +5737,7 @@ select:focus {
   background: var(--accent);
   color: #fff;
   padding: 0.65rem 1.2rem;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 0.88rem;
   font-weight: 700;
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
@@ -5583,7 +5848,7 @@ select:focus {
   color: var(--text-dim, var(--text-muted, #94a3b8));
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 2px 8px;
   margin-left: auto;
 }
@@ -5641,12 +5906,12 @@ select:focus {
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   padding: 0.2rem 0.55rem;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .hm-share-btn {
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   color: var(--text-muted);
   font-size: 0.7rem;
   font-weight: 600;
@@ -5714,7 +5979,7 @@ select:focus {
 .hm-legend-gradient {
   width: 60px;
   height: 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: linear-gradient(90deg, hsl(135 65% 42%), hsl(8 65% 42%));
 }
 .hm-legend-empty-swatch {
@@ -5863,15 +6128,13 @@ select:focus {
   background: linear-gradient(90deg,
               color-mix(in srgb, var(--accent) 10%, transparent),
               transparent);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 6px 6px 0;
+  border-radius: 6px;
 }
 
 /* Destination row */
 .mc-dest-row {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
   border-radius: 8px;
   padding: 0.6rem 0.85rem 0.7rem;
   margin-bottom: 0.6rem;
@@ -5891,7 +6154,7 @@ select:focus {
 .mc-dest-remove {
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 999px;
   color: var(--text-muted);
   padding: 0.18rem 0.55rem;
   font-size: 0.72rem;
@@ -6012,7 +6275,7 @@ select:focus {
 .mc-combo-perm-badge {
   background: linear-gradient(135deg, #8b5cf6, #ec4899);
   color: #fff;
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 2px 10px;
   font-size: 0.7rem;
   font-weight: 800;
@@ -6023,7 +6286,7 @@ select:focus {
 .mc-combo-pareto-badge {
   background: linear-gradient(135deg, #facc15, #fb923c);
   color: #1f2937;
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 2px 10px;
   font-size: 0.7rem;
   font-weight: 800;
@@ -6082,7 +6345,7 @@ select:focus {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   padding: 0.2rem 0.55rem;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .mc-combo-best .mc-combo-rank {
   background: var(--accent);
@@ -6299,7 +6562,13 @@ html, body { overflow-x: hidden; max-width: 100%; }
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     max-width: 100%;
+    /* Scroll-hint: fade the right edge so users see the pill row extends further */
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+            mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+    scroll-snap-type: x proximity;
+    padding-right: 12px;
   }
+  .tabs-group-btns > .tab-btn { scroll-snap-align: start; }
   .tabs-group-btns::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 0 0 auto;
@@ -6469,4 +6738,153 @@ html, body { overflow-x: hidden; max-width: 100%; }
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
+}
+
+/* ── Touch targets: WCAG 2.5.5 recommends ≥ 44×44 on primary pointer.
+   Desktop keeps compact chrome; mobile promotes every actionable pill,
+   button, and small toggle to at least 44px in the tap axis. */
+@media (hover: none) and (pointer: coarse), (max-width: 720px) {
+  .tab-btn,
+  .stop-btn,
+  .date-preset-btn,
+  .filter-day-btn,
+  .filter-stop-btn,
+  .theme-toggle,
+  .route-tab,
+  .day-btn,
+  .swap-airports-btn,
+  .ni-toggle-btn,
+  .btn-import,
+  .btn-export {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .swap-airports-btn { min-width: 44px; justify-content: center; }
+  /* Enlarge native checkbox hit area via its label (checkbox-in-label pattern) */
+  .simple-search-label,
+  .flex-range-label {
+    min-height: 44px;
+    padding: 0.25rem 0;
+  }
+  .simple-search-label input[type="checkbox"],
+  .flex-range-label input[type="checkbox"] {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
+
+/* ── Saved empty state ── */
+.saved-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 2.5rem 1.5rem 3rem;
+  text-align: center;
+  color: var(--text);
+}
+.saved-empty-art {
+  width: 220px;
+  max-width: 80%;
+  height: auto;
+  filter: drop-shadow(0 6px 24px color-mix(in srgb, var(--accent) 22%, transparent));
+}
+.saved-empty-copy {
+  max-width: 32ch;
+}
+.saved-empty-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.saved-empty-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Screen-reader-only utility (visually hidden but announced) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Motion: choreographed reveal + subtle life ────
+   Flight cards fade+rise in staggered per position.
+   The "best price" badge breathes softly to earn attention. */
+@keyframes flightCardEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cheapestPulse {
+  0%, 100% { box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 12px 40px color-mix(in srgb, var(--accent) 24%, transparent),
+    var(--shadow-card); }
+  50%      { box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent),
+    0 16px 48px color-mix(in srgb, var(--accent) 34%, transparent),
+    var(--shadow-card); }
+}
+.flights-grid > .flight-card {
+  animation: flightCardEnter 0.4s ease-out both;
+}
+.flights-grid > .flight-card:nth-child(1)  { animation-delay: 0.02s; }
+.flights-grid > .flight-card:nth-child(2)  { animation-delay: 0.06s; }
+.flights-grid > .flight-card:nth-child(3)  { animation-delay: 0.10s; }
+.flights-grid > .flight-card:nth-child(4)  { animation-delay: 0.14s; }
+.flights-grid > .flight-card:nth-child(5)  { animation-delay: 0.18s; }
+.flights-grid > .flight-card:nth-child(6)  { animation-delay: 0.22s; }
+.flights-grid > .flight-card:nth-child(n+7) { animation-delay: 0.26s; }
+.flight-card.card-cheapest {
+  animation: flightCardEnter 0.4s ease-out both, cheapestPulse 4.2s ease-in-out 0.6s infinite;
+}
+/* Pause the pulse whenever the tab is hidden (rendering cycle cost) */
+.tab-panel.hidden .flight-card.card-cheapest { animation-play-state: paused; }
+
+/* Section title reveal for multi-origen panel */
+@keyframes panelRise {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.multi-origin-panel { animation: panelRise 0.45s ease-out both; }
+.multi-origin-cell {
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+.multi-origin-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.multi-origin-cell-winner {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-2) 40%, transparent),
+              0 6px 18px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+/* ── Reduced motion ──
+   Users with Reduce Motion active in the OS (frequent on iOS) get a
+   pared-down set. We keep state changes visible but strip the flourish. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .route-section-flash,
+  .flights-grid > .flight-card,
+  .flight-card.card-cheapest,
+  .multi-origin-panel,
+  .spinner,
+  .price-resolve-spinner { animation: none !important; }
 }

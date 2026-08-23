@@ -64,10 +64,35 @@ function renderSavedTab() {
 
   if (list.length === 0) {
     container.innerHTML = `
-      <div class="results-placeholder">
-        <span class="placeholder-icon">♥️</span>
-        ${t('no_saved_flights')}<br/>
-        <small>${t('no_saved_hint')}</small>
+      <div class="saved-empty">
+        <svg class="saved-empty-art" viewBox="0 0 220 140" aria-hidden="true">
+          <defs>
+            <linearGradient id="seSky" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="var(--accent)" stop-opacity="0.18"/>
+              <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="220" height="140" fill="url(#seSky)" rx="14"/>
+          <!-- dashed flight path arcing across -->
+          <path d="M 18 108 Q 110 -8 202 108" fill="none"
+                stroke="var(--accent)" stroke-opacity="0.55"
+                stroke-width="1.6" stroke-dasharray="4 5" stroke-linecap="round"/>
+          <!-- origin + destination dots -->
+          <circle cx="18"  cy="108" r="4" fill="var(--accent)"/>
+          <circle cx="202" cy="108" r="4" fill="var(--accent)"/>
+          <!-- plane, tilted along the path -->
+          <g transform="translate(110 33) rotate(-8)">
+            <path d="M -18 0 L 18 -2 L 22 0 L 18 2 Z M -6 -1 L -14 -8 L -18 -8 L -12 -1 M -6 1 L -14 8 L -18 8 L -12 1"
+                  fill="var(--accent)"/>
+          </g>
+          <!-- heart above plane -->
+          <path d="M 110 12 c -3 -6 -12 -6 -12 1 c 0 6 12 12 12 12 c 0 0 12 -6 12 -12 c 0 -7 -9 -7 -12 -1 z"
+                fill="var(--accent)" opacity="0.85"/>
+        </svg>
+        <div class="saved-empty-copy">
+          <h3 class="saved-empty-title">${t('no_saved_flights')}</h3>
+          <p class="saved-empty-hint">${t('no_saved_hint')}</p>
+        </div>
       </div>`;
     return;
   }

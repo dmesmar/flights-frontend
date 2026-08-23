@@ -7,9 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=bolder1" />
 </head>
 <body>
+
+  <h1 class="sr-only">Flights Search</h1>
 
   <!-- Header -->
   <header>
@@ -85,6 +87,17 @@
           </div>
         </div>
 
+        <!-- Flexible range -->
+        <div class="flex-range-row">
+          <label class="flex-range-label">
+            <input type="checkbox" id="flexCheck" />
+            <span data-i18n="label_flex_range">Flexible ±</span>
+          </label>
+          <input type="number" id="flexDays" class="flex-range-input" min="1" max="7" value="3" disabled aria-label="Días de flexibilidad" data-i18n-aria="flex_days_aria" />
+          <span class="flex-range-suffix" data-i18n="label_flex_days">días</span>
+          <span class="tooltip-icon" data-i18n-title="tooltip_flex_range" title="Amplía la búsqueda N días antes y N días después del rango seleccionado. Los vuelos en días extra se marcan con una etiqueta.">?</span>
+        </div>
+
         <!-- Date presets -->
         <details class="advanced-settings" id="datePresets">
           <summary data-i18n="date_presets_toggle">📅 Selección rápida de fechas</summary>
@@ -130,7 +143,7 @@
             <div class="airport-selector" id="selectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="tagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -147,7 +160,7 @@
             <div class="airport-selector" id="selectorTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="tagsTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -284,7 +297,7 @@
             <div class="airport-selector" id="exSelectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="exTagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -301,7 +314,7 @@
             <div class="airport-selector" id="exSelectorTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="exTagsTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -383,6 +396,17 @@
           </div>
         </div>
 
+        <!-- Flexible range -->
+        <div class="flex-range-row">
+          <label class="flex-range-label">
+            <input type="checkbox" id="chFlexCheck" />
+            <span data-i18n="label_flex_range">Flexible ±</span>
+          </label>
+          <input type="number" id="chFlexDays" class="flex-range-input" min="1" max="7" value="3" disabled aria-label="Días de flexibilidad" data-i18n-aria="flex_days_aria" />
+          <span class="flex-range-suffix" data-i18n="label_flex_days">días</span>
+          <span class="tooltip-icon" data-i18n-title="tooltip_flex_range" title="Amplía la búsqueda N días antes y N días después del rango seleccionado. Los vuelos en días extra se marcan con una etiqueta.">?</span>
+        </div>
+
         <!-- Date presets -->
         <details class="advanced-settings" id="chDatePresets">
           <summary data-i18n="date_presets_toggle">📅 Selección rápida de fechas</summary>
@@ -428,7 +452,7 @@
             <div class="airport-selector" id="chSelectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="chTagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -444,7 +468,7 @@
             <div class="airport-selector" id="chSelectorTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="chTagsTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -565,7 +589,7 @@
             <div class="airport-selector" id="rtSelectorOutFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="rtTagsOutFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -581,7 +605,7 @@
             <div class="airport-selector" id="rtSelectorOutTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="rtTagsOutTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -599,7 +623,7 @@
             <div class="airport-selector" id="rtSelectorRetFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="rtTagsRetFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -615,7 +639,7 @@
             <div class="airport-selector" id="rtSelectorRetTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="rtTagsRetTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -698,7 +722,7 @@
             <div class="airport-selector" id="dirSelectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="dirTagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -733,7 +757,7 @@
             <div class="airport-selector" id="surSelectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="surTagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -785,7 +809,7 @@
             <div class="airport-selector" id="hmSelectorFrom">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="hmTagsFrom"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -799,7 +823,7 @@
             <div class="airport-selector" id="hmSelectorTo">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="hmTagsTo"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox">
@@ -856,7 +880,7 @@
             <div class="airport-selector" id="mcSelectorOrigin">
               <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
                 <div class="airport-trigger-tokens" id="mcTagsOrigin"></div>
-                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false" />
+                <input type="text" class="dropdown-search-input" placeholder="Seleccionar…" data-i18n-placeholder="airport_placeholder" autocomplete="off" spellcheck="false"  data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
                 <span class="airport-trigger-arrow">&#x25BE;</span>
               </div>
               <div class="airport-dropdown" role="listbox"><div class="dropdown-list"></div></div>
@@ -956,19 +980,19 @@
   <!-- Botón flotante volver arriba -->
   <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Volver arriba" title="Volver arriba">&#x2191;</button>
 
-  <script src="i18n.js?v=4"></script>
+  <script src="i18n.js?v=harden1"></script>
   <script src="iata_routes.js"></script>
   <script src="airports.js?v=5"></script>
   <script src="airport_coords.js"></script>
   <script src="geo.js"></script>
-  <script src="render.js"></script>
+  <script src="render.js?v=flex1"></script>
   <script src="saved.js"></script>
-  <script src="filters.js"></script>
+  <script src="filters.js?v=flex1"></script>
   <script src="return.js"></script>
   <script src="files/continents-map.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=harden1"></script>
   <script src="express.js"></script>
-  <script src="cheap.js"></script>
+  <script src="cheap.js?v=flex1"></script>
   <script src="nearby-inline.js"></script>
   <script src="round-trip.js"></script>
   <script src="direct-flights.js"></script>

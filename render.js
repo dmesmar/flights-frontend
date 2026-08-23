@@ -172,6 +172,30 @@ function parseDateInput(s) {
   return new Date(y, m - 1, d);
 }
 
+/* Flex ±N days helper: takes user's fechaIni/fechaFin (YYYY-MM-DD) and
+   optional flexN. Returns expanded API dates (DD-MM-YYYY) and a marker
+   fn that flags results outside the user's ORIGINAL range. */
+function computeFlexRange(fechaIniInput, fechaFinInput, flexN) {
+  const toApi = d => `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+  const origIni = parseDateInput(fechaIniInput);
+  const origFin = parseDateInput(fechaFinInput);
+  if (!flexN || flexN <= 0) {
+    return { apiIni: toApi(origIni), apiFin: toApi(origFin), markExtras: null };
+  }
+  const apiIniDate = new Date(origIni); apiIniDate.setDate(apiIniDate.getDate() - flexN);
+  const apiFinDate = new Date(origFin); apiFinDate.setDate(apiFinDate.getDate() + flexN);
+  const origStart = origIni.getTime();
+  const origEnd   = origFin.getTime();
+  const markExtras = (vuelos) => {
+    if (!Array.isArray(vuelos)) return;
+    vuelos.forEach(v => {
+      const t = parseDateYMD(v.fecha).getTime();
+      if (t < origStart || t > origEnd) v.__flex_extra = true;
+    });
+  };
+  return { apiIni: toApi(apiIniDate), apiFin: toApi(apiFinDate), markExtras };
+}
+
 function durationMins(durStr) {
   // e.g. "2h 30m" or "1h" or "45m"
   const h = (durStr.match(/(\d+)h/) || [0,0])[1];
@@ -404,7 +428,9 @@ function renderFlightCard(v, mode) {
   const id         = flightId(v);
   const saved      = isSaved(v);
   const cheapClass = v.mas_barato ? ' card-cheapest' : '';
+  const flexClass  = v.__flex_extra ? ' card-flex-extra' : '';
   const cheapBadge = v.mas_barato ? `<span class="cheapest-badge">${t('badge_best')}</span>` : '';
+  const flexBadge  = v.__flex_extra ? `<span class="flex-extra-badge" title="${t('flex_extra_title')}">${t('flex_extra_badge')}</span>` : '';
   const arrival    = v.adelanto_llegada ? `<sup class="next-day">${v.adelanto_llegada}</sup>` : '';
   const oriInfo    = airportInfo(v.origen);
   const dstInfo    = airportInfo(v.destino);
@@ -437,8 +463,9 @@ function renderFlightCard(v, mode) {
       : `<span class="card-price">${v.precio}</span>`;
 
   return `
-    <div class="flight-card${cheapClass}"${resolveAttrs}>
+    <div class="flight-card${cheapClass}${flexClass}"${resolveAttrs}>
       ${cheapBadge}
+      ${flexBadge}
       <div class="card-top">
         <span class="card-date-label">${flightDateLabel(v.fecha)}</span>
         <span class="card-airline-name">${v.aerolinea}</span>
@@ -490,6 +517,41 @@ function renderResultsGridInner(data, mode = '', flatOrder = false, excluded = n
   const routes = Object.keys(byRoute);
   let html = '';
 
+  // Precompute min price per route + per origin (used by tabs and comparativa panel)
+  const routeMin = {};
+  const originMin = {};
+  routes.forEach(r => {
+    const prices = byRoute[r].map(v => parsePrice(v.precio)).filter(p => p > 0);
+    routeMin[r] = prices.length ? Math.min(...prices) : null;
+    const origen = byRoute[r][0].origen;
+    if (routeMin[r] != null && (originMin[origen] == null || routeMin[r] < originMin[origen])) {
+      originMin[origen] = routeMin[r];
+    }
+  });
+  const origins = [...new Set(routes.map(r => byRoute[r][0].origen))];
+  const cheapestOrigin = origins.length > 1
+    ? origins.reduce((best, o) => (originMin[o] != null && (best == null || originMin[o] < originMin[best])) ? o : best, null)
+    : null;
+
+  // Multi-origen comparativa panel: shown above route tabs when >1 origin
+  if (origins.length > 1) {
+    html += `<div class="multi-origin-panel">
+      <div class="multi-origin-title">${t('multi_origin_title')}</div>
+      <div class="multi-origin-grid">`;
+    origins.forEach(o => {
+      const info = airportInfo(o);
+      const price = originMin[o];
+      const isWinner = o === cheapestOrigin;
+      html += `<button type="button" class="multi-origin-cell${isWinner ? ' multi-origin-cell-winner' : ''}" data-origin="${o}">
+        <span class="mo-iata">${o}</span>
+        <span class="mo-city">${info.city}</span>
+        <span class="mo-price">${price != null ? price.toFixed(0) + '€' : '—'}</span>
+        ${isWinner ? `<span class="mo-winner-badge">${t('multi_origin_winner')}</span>` : ''}
+      </button>`;
+    });
+    html += `</div></div>`;
+  }
+
   // Route tabs (only when there are multiple routes)
   if (routes.length > 1) {
     html += `<div class="route-tabs">`;
@@ -499,7 +561,10 @@ function renderResultsGridInner(data, mode = '', flatOrder = false, excluded = n
       const first = byRoute[ruta][0];
       const ori = airportInfo(first.origen);
       const dst = airportInfo(first.destino);
-      html += `<button class="route-tab" data-route="${ruta}">${ori.city} → ${dst.city} <span class="route-tab-count">${byRoute[ruta].length}</span></button>`;
+      const priceBadge = routeMin[ruta] != null
+        ? ` <span class="route-tab-min">${routeMin[ruta].toFixed(0)}€</span>`
+        : '';
+      html += `<button class="route-tab" data-route="${ruta}">${ori.city} → ${dst.city} <span class="route-tab-count">${byRoute[ruta].length}</span>${priceBadge}</button>`;
     });
     html += `</div>`;
   }

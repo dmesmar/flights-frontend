@@ -77,7 +77,7 @@ function openReturnModal(flight) {
           <div class="airport-selector" id="rmSelectorFrom">
             <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
               <div class="airport-trigger-tokens" id="rmTagsFrom"></div>
-              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" />
+              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
               <span class="airport-trigger-arrow">&#x25BE;</span>
             </div>
             <div class="airport-dropdown" role="listbox">
@@ -90,7 +90,7 @@ function openReturnModal(flight) {
           <div class="airport-selector" id="rmSelectorTo">
             <div class="airport-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false">
               <div class="airport-trigger-tokens" id="rmTagsTo"></div>
-              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" />
+              <input type="text" class="dropdown-search-input" placeholder="${t('trigger_ph')}" autocomplete="off" spellcheck="false" data-i18n-aria="airport_search_aria" aria-label="Buscar aeropuerto" />
               <span class="airport-trigger-arrow">&#x25BE;</span>
             </div>
             <div class="airport-dropdown" role="listbox">

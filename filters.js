@@ -25,6 +25,33 @@ let excludedReturnRoutes = new Set();
 let activeDestFilter = '';
 let activeReturnDestFilter = '';
 
+/* Multi-origen comparativa panel: click a cell to scroll to the first
+   route section belonging to that origin. */
+function bindMultiOriginPanel(container) {
+  const cells = container.querySelectorAll('.multi-origin-cell');
+  if (!cells.length) return;
+  cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+      const origin = cell.dataset.origin;
+      // If we're in flat mode (single __flat__ section), switch to grouped view first
+      const flatSection = container.querySelector('.route-section[data-route="__flat__"]');
+      if (flatSection) {
+        container.querySelector('.route-tab[data-route=""]')?.click();
+      }
+      // Small delay to let the re-render settle, then scroll
+      setTimeout(() => {
+        const section = [...container.querySelectorAll('.route-section')]
+          .find(s => s.dataset.route && s.dataset.route.split(' → ')[0] === origin);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          section.classList.add('route-section-flash');
+          setTimeout(() => section.classList.remove('route-section-flash'), 1400);
+        }
+      }, flatSection ? 60 : 0);
+    });
+  });
+}
+
 function bindRouteTabs(container, onTabChange) {
   const tabs = container.querySelectorAll('.route-tab');
   if (!tabs.length) return;

@@ -107,9 +107,12 @@ document.getElementById('cheapForm').addEventListener('submit', async (e) => {
   submitBtn.disabled    = true;
   submitBtn.textContent = t('btn_searching');
 
+  const flexOn = document.getElementById('chFlexCheck')?.checked;
+  const flexN  = flexOn ? parseInt(document.getElementById('chFlexDays')?.value || '3') : 0;
+  const flex   = computeFlexRange(fechaIni, fechaFin, flexN);
   const basePayload = {
-    fecha_ini:    fechaIni.split('-').reverse().join('-'),
-    fecha_fin:    fechaFin.split('-').reverse().join('-'),
+    fecha_ini:    flex.apiIni,
+    fecha_fin:    flex.apiFin,
     airport_to:   to,
     max_stops:    stops,
     max_results:  50, // fetch plenty to allow filtering (top 5 is applied client-side)
@@ -134,6 +137,7 @@ document.getElementById('cheapForm').addEventListener('submit', async (e) => {
     });
 
     let vuelos = data.vuelos || [];
+    if (flex.markExtras) flex.markExtras(vuelos);
     if (dayFilter.length) {
       vuelos = vuelos.filter(v => dayFilter.includes(parseDateYMD(v.fecha).getDay()));
     }
